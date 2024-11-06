@@ -8,7 +8,9 @@
         WALL_TOP_BOTTOM = '-',
         PLAYER_TOKEN = '@',
         BOMB_TOKEN = 'ó',
-        EXPLOSION = '#',
-        BOMB_TICKS = 3
+        EXPLOSION_TOKEN = '$',
+        BOMB_TICKS = 5,
+        BOUNDARY_TOKEN = '#',
+        MAX_BOMBS_ALLOWED = 3
     }
 }
