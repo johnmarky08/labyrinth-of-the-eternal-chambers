@@ -101,11 +101,7 @@
 
             // If player was in explosion area, reduce life
             if (playerCaughtInExplosion)
-            {
                 playerLives--;
-                Console.SetCursorPosition(0, Map.height + 2);
-                Console.WriteLine($"Player hit by explosion! Lives remaining: {playerLives}");
-            }
         }
     }
 }

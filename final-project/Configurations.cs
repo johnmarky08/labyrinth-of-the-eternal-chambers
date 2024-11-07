@@ -2,8 +2,8 @@
 {
     internal enum Configurations
     {
-        WIDTH = 60,
-        HEIGHT = 20,
+        WIDTH = 20,
+        HEIGHT = 10,
         WALL_LEFT_RIGHT = '|',
         WALL_TOP_BOTTOM = '-',
         PLAYER_TOKEN = '@',
