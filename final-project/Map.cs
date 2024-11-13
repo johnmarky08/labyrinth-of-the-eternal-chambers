@@ -229,7 +229,6 @@
             int adjustedY = y / blockSize * blockSize;
             int adjustedX = x / blockSize * blockSize;
             if (Check(adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary);
-            else if (Check(adjustedY, adjustedX, Token.player) && Check(adjustedY, adjustedX, Token.bomb)) DrawToken(y, x, ConsoleColor.Red, Token.player);
             else if (Check(adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player);
             else if (Check(adjustedY, adjustedX, Token.bomb)) DrawToken(y, x, ConsoleColor.Red, Token.bomb);
             else DrawToken(y, x, ConsoleColor.White, null);
@@ -306,8 +305,8 @@
             DrawToken(height + 1, 0, ConsoleColor.Yellow, livesToken);
             DrawToken(height + 1, 90, Bomb.playerLives > 1 ? ConsoleColor.Yellow : ConsoleColor.Red, NumberToken(Bomb.playerLives));
             DrawToken(height + 7, 0, ConsoleColor.Yellow, bombsToken);
-            DrawToken(height + 7, 100,(Bomb.maxBombs - Bomb.currentBombs) < 1 ? ConsoleColor.Red : ConsoleColor.Yellow, NumberToken(Bomb.maxBombs - Bomb.currentBombs));
-            DrawToken(height + 7, 109,ConsoleColor.Yellow, guideToken);
+            DrawToken(height + 7, 100, (Bomb.maxBombs - Bomb.currentBombs) < 1 ? ConsoleColor.Red : ConsoleColor.Yellow, NumberToken(Bomb.maxBombs - Bomb.currentBombs));
+            DrawToken(height + 7, 109, ConsoleColor.Yellow, guideToken);
         }
 
         // Number to ASCII Art Number.

@@ -77,7 +77,7 @@
             {
                 int startX = centerX + offsetX;
                 int startY = centerY + offsetY;
-                if (!(Map.Check(startY, startX, Token.leftRightWall) || Map.Check(startY, startX, Token.topBottomWall)))
+                if (!(Map.Check(startY, startX, Token.leftRightWall) || Map.Check(startY, startX, Token.topBottomWall) || Map.Check(startY, startX, Token.bomb)))
                     DrawToken(startX, startY, explosionPattern, ref playerCaughtInExplosion);
             }
 
@@ -103,36 +103,31 @@
 
                     if (x >= 0 && y >= 0 && x < Map.width && y < Map.height)
                     {
-                        bool isWallLeftRight = Map.Check(y, x, Token.leftRightWall);
-                        bool isWallTopBottom = Map.Check(y, x, Token.topBottomWall);
+                        char explosionChar = token[offsetY][offsetX];
 
-                        if (!(isWallLeftRight || isWallTopBottom))
+                        Map.map[y, x] = explosionChar;
+                        Console.SetCursorPosition(x, y);
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(Map.map[y, x]);
+
+                        // Check if the player is caught in the explosion
+                        // Check if the current explosion position overlaps with any part of the 7x7 player area
+                        for (int playerOffsetY = 0; playerOffsetY < 7; playerOffsetY++)
                         {
-                            char explosionChar = token[offsetY][offsetX];
-
-                            Console.SetCursorPosition(x, y);
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.Write(explosionChar);
-
-                            // Check if the player is caught in the explosion
-                            // Check if the current explosion position overlaps with any part of the 7x7 player area
-                            for (int playerOffsetY = 0; playerOffsetY < 7; playerOffsetY++)
+                            for (int playerOffsetX = 0; playerOffsetX < 7; playerOffsetX++)
                             {
-                                for (int playerOffsetX = 0; playerOffsetX < 7; playerOffsetX++)
-                                {
-                                    int playerPosX = Game.playerX + playerOffsetX;
-                                    int playerPosY = Game.playerY + playerOffsetY;
+                                int playerPosX = Game.playerX + playerOffsetX;
+                                int playerPosY = Game.playerY + playerOffsetY;
 
-                                    // Check if the current explosion coordinates match any player coordinates
-                                    if (x == playerPosX && y == playerPosY)
-                                    {
-                                        playerCaughtInExplosion = true;
-                                        break;
-                                    }
-                                }
-                                if (playerCaughtInExplosion)
+                                // Check if the current explosion coordinates match any player coordinates
+                                if (x == playerPosX && y == playerPosY)
+                                {
+                                    playerCaughtInExplosion = true;
                                     break;
+                                }
                             }
+                            if (playerCaughtInExplosion)
+                                break;
                         }
                     }
                 }
@@ -150,7 +145,7 @@
             {
                 int startX = centerX + offsetX;
                 int startY = centerY + offsetY;
-                if (!(Map.Check(startY, startX, Token.leftRightWall) || Map.Check(startY, startX, Token.topBottomWall)))
+                if (!(Map.Check(startY, startX, Token.leftRightWall) || Map.Check(startY, startX, Token.topBottomWall) || Map.Check(startY, startX, Token.bomb)))
                     ClearToken(startX, startY);
             }
         }
@@ -167,15 +162,9 @@
 
                     if (x >= 0 && y >= 0 && x < Map.width && y < Map.height)
                     {
-                        bool isWallLeftRight = Map.Check(y, x, Token.leftRightWall);
-                        bool isWallTopBottom = Map.Check(y, x, Token.topBottomWall);
-
-                        if (!(isWallLeftRight || isWallTopBottom))
-                        {
-                            Map.map[y, x] = ' ';
-                            Console.SetCursorPosition(x, y);
-                            Console.Write(' ');
-                        }
+                        Map.map[y, x] = ' ';
+                        Console.SetCursorPosition(x, y);
+                        Console.Write(Map.map[y, x]);
                     }
                 }
             }
