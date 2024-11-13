@@ -1,16 +1,31 @@
-﻿namespace final_project
+﻿using WindowsInput;
+using WindowsInput.Native;
+namespace final_project
 {
     internal class Game
     {
-        public static int playerX = 1, playerY = 1;
+        public static int playerX = 7;
+        public static int playerY = 7;
+        public static int oldPlayerX = 0;
+        public static int oldPlayerY = 0;
         static bool gameOver = false;
 
+        // Main Game Methods
         internal static void Execute()
         {
+            // Minimize buffersize for ASCII to fit on screen.
+            var simulator = new InputSimulator();
+            for (int i = 0; i < 6; i++)
+                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);
+
+            // Game settings loader.
+            Thread.Sleep(100);
             Console.CursorVisible = false;
             Map.InitializeMap();
             Map.GenerateBoundaries();
             Map.DrawMap();
+
+            // Start the game.
             StartGameLoop();
         }
 
@@ -18,6 +33,7 @@
         {
             while (Bomb.playerLives > 0 && !gameOver)
             {
+                Map.DrawScore();
                 Bomb.Update();
 
                 if (Console.KeyAvailable)
@@ -27,18 +43,27 @@
                     if (key == ConsoleKey.Escape)
                     {
                         gameOver = true;
-                        return;
                     }
 
+                    Thread.Sleep(100);
                     MovePlayer(key);
-                    Map.DrawMap();
+                    Map.SpecificDraw(playerY, playerX); // Update the map only if the player has moved to a valid position
                 }
 
-                Thread.Sleep(50);  // Optional: Slight delay to prevent high CPU usage
+                Thread.Sleep(50);
             }
 
             // Game Over
             Console.Clear();
+            Thread.Sleep(50);
+
+            // Enlarge buffersize.
+            var simulator = new InputSimulator();
+            for (int i = 0; i < 6; i++)
+                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
+
+            // Display game over text.
+            Thread.Sleep(100);
             Console.SetCursorPosition(0, 10);
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("\t\t      ___           ___           ___           ___                    ___           ___           ___           ___     \r\n\t\t     /\\  \\         /\\  \\         /\\__\\         /\\  \\                  /\\  \\         /\\__\\         /\\  \\         /\\  \\    \r\n\t\t    /::\\  \\       /::\\  \\       /::|  |       /::\\  \\                /::\\  \\       /:/  /        /::\\  \\       /::\\  \\   \r\n\t\t   /:/\\:\\  \\     /:/\\:\\  \\     /:|:|  |      /:/\\:\\  \\              /:/\\:\\  \\     /:/  /        /:/\\:\\  \\     /:/\\:\\  \\  \r\n\t\t  /:/  \\:\\  \\   /::\\~\\:\\  \\   /:/|:|__|__   /::\\~\\:\\  \\            /:/  \\:\\  \\   /:/__/  ___   /::\\~\\:\\  \\   /::\\~\\:\\  \\ \r\n\t\t /:/__/_\\:\\__\\ /:/\\:\\ \\:\\__\\ /:/ |::::\\__\\ /:/\\:\\ \\:\\__\\          /:/__/ \\:\\__\\  |:|  | /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:\\__\\\r\n\t\t \\:\\  /\\ \\/__/ \\/__\\:\\/:/  / \\/__/~~/:/  / \\:\\~\\:\\ \\/__/          \\:\\  \\ /:/  /  |:|  |/:/  / \\:\\~\\:\\ \\/__/ \\/_|::\\/:/  /\r\n\t\t  \\:\\ \\:\\__\\        \\::/  /        /:/  /   \\:\\ \\:\\__\\             \\:\\  /:/  /   |:|__/:/  /   \\:\\ \\:\\__\\      |:|::/  / \r\n\t\t   \\:\\/:/  /        /:/  /        /:/  /     \\:\\ \\/__/              \\:\\/:/  /     \\::::/__/     \\:\\ \\/__/      |:|\\/__/  \r\n\t\t    \\::/  /        /:/  /        /:/  /       \\:\\__\\                 \\::/  /       ~~~~          \\:\\__\\        |:|  |    \r\n\t\t     \\/__/         \\/__/         \\/__/         \\/__/                  \\/__/                       \\/__/         \\|__|    \r\n\t\t");
@@ -46,6 +71,7 @@
             Console.ReadKey();
         }
 
+        // Main controls method
         static void MovePlayer(ConsoleKey key)
         {
             int newX = playerX, newY = playerY;
@@ -54,29 +80,35 @@
             {
                 case ConsoleKey.W:
                 case ConsoleKey.UpArrow:
-                    newY = Math.Max(1, playerY - 1);
+                    newY = playerY - 7;
                     break;
                 case ConsoleKey.S:
                 case ConsoleKey.DownArrow:
-                    newY = Math.Min(Map.height - 2, playerY + 1);
+                    newY = playerY + 7;
                     break;
                 case ConsoleKey.A:
                 case ConsoleKey.LeftArrow:
-                    newX = Math.Max(1, playerX - 1);
+                    newX = playerX - 7;
                     break;
                 case ConsoleKey.D:
                 case ConsoleKey.RightArrow:
-                    newX = Math.Min(Map.width - 2, playerX + 1);
+                    newX = playerX + 7;
                     break;
                 case ConsoleKey.Spacebar:
                 case ConsoleKey.Enter:
                     Bomb.Plant();
                     return;
+                default: return;
             }
 
-            // Check if the new position is not a wall
-            if (Map.map[newY, newX] != Map.boundaryToken && Map.map[newY, newX] != (char)Configurations.WALL_LEFT_RIGHT && Map.map[newY, newX] != (char)Configurations.WALL_TOP_BOTTOM)
+            bool isWall = Map.Check(newY, newX, Token.boundary) ||
+                  Map.Check(newY, newX, Token.leftRightWall) ||
+                  Map.Check(newY, newX, Token.topBottomWall);
+
+            if (!isWall && newX > 0 && newX < Map.width && newY > 0 && newY < Map.height)
             {
+                oldPlayerX = playerX;
+                oldPlayerY = playerY;
                 playerX = newX;
                 playerY = newY;
             }

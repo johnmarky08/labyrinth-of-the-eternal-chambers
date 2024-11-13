@@ -7,6 +7,7 @@ namespace final_project
         private static bool exitFlag = false;
         static void Main()
         {
+            // Make the console full screen.
             Console.CursorVisible = false;
             var simulator = new InputSimulator();
             simulator.Keyboard.ModifiedKeyStroke(WindowsInput.Native.VirtualKeyCode.MENU, WindowsInput.Native.VirtualKeyCode.RETURN);
@@ -14,12 +15,11 @@ namespace final_project
             if (OperatingSystem.IsWindows())
                 Console.SetBufferSize(Console.WindowWidth, Console.LargestWindowHeight);
 
+            // Start game if presses space.
             Thread.Sleep(100);
-
-            bool nextText = true;
-
             Thread keyListenerThread = new(KeyListener);
             keyListenerThread.Start();
+            bool nextText = true;
 
             while (!exitFlag)
             {
@@ -51,7 +51,7 @@ namespace final_project
                     }
                     else if (key == ConsoleKey.Escape)
                     {
-                        Environment.Exit(0);
+                        Environment.Exit(0); // Exit program
                     }
                 }
                 Thread.Sleep(50);
@@ -59,7 +59,7 @@ namespace final_project
             Game.Execute();
         }
 
-
+        // Moving text menu animation.
         static void MoveText(string title, string[] texts, bool next)
         {
             string currentTitle = title;

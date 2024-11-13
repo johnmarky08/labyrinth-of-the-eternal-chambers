@@ -3,15 +3,16 @@
     internal class Bomb(int x, int y)
     {
         public static readonly int maxBombs = (int)Configurations.MAX_BOMBS_ALLOWED;
+        public static int playerLives = (int)Configurations.PLAYER_LIVES;
         public static readonly List<Bomb> bombs = [];
-        public static int playerLives = 3;
         public static int currentBombs = 0;
         public int X { get; } = x;
         public int Y { get; } = y;
         private readonly DateTime placedAt = DateTime.Now;
 
-        public bool IsTimerUp() => (DateTime.Now - placedAt).TotalSeconds >= 3;
+        public bool IsTimerUp() => (DateTime.Now - placedAt).TotalSeconds >= (int)Configurations.BOMB_TICKS;
 
+        // Plant a new bomb.
         public static void Plant()
         {
             if (currentBombs < maxBombs)
@@ -21,6 +22,7 @@
             }
         }
 
+        // Check bomb if ready to explode.
         public static void Update()
         {
             List<Bomb> explodedBombs = [];
@@ -29,12 +31,11 @@
             {
                 if (bomb.IsTimerUp())
                 {
-                    Explode(bomb);
                     explodedBombs.Add(bomb);
+                    Explode(bomb);
                 }
             }
 
-            // Remove exploded bombs
             foreach (var bomb in explodedBombs)
             {
                 bombs.Remove(bomb);
@@ -43,65 +44,141 @@
 
             if (explodedBombs.Count > 0)
             {
-                Map.DrawMap();
+                Map.SpecificDraw(Game.playerY, Game.playerX);
             }
         }
 
+        // Bomb explossion effect.
         public static void Explode(Bomb bomb)
         {
             int centerX = bomb.X;
             int centerY = bomb.Y;
             bool playerCaughtInExplosion = false;
 
-            // Define explosion range as a cross pattern
-            var explosionRange = new (int, int)[] {
-                (centerX, centerY),  // Center
-                (centerX - 1, centerY), // Left
-                (centerX + 1, centerY), // Right
-                (centerX, centerY - 1), // Up
-                (centerX, centerY + 1)  // Down
+            string[] explosionPattern = Token.bombExplosion.Split('\n');
+
+            // Define offsets for the explosion range (1 block above, below, left, right, and diagonally)
+            var explosionOffsets = new List<(int, int)>
+            {
+                (-7, 0),   // 1 block above
+                (7, 0),    // 1 block below
+                (0, -7),   // 1 block to the left
+                (0, 7),    // 1 block to the right
+                (-7, -7),  // Top-left diagonal
+                (-7, 7),   // Top-right diagonal
+                (7, -7),   // Bottom-left diagonal
+                (7, 7)     // Bottom-right diagonal
             };
 
-            // Draw explosion
-            foreach (var (x, y) in explosionRange)
-            {
-                if (x >= 0 && y >= 0 && x < Map.width && y < Map.height)
-                {
-                    // Make sure it's not a wall or boundary, else leave it intact
-                    if (!new char[] { (char)Configurations.WALL_LEFT_RIGHT, (char)Configurations.WALL_TOP_BOTTOM }.Contains(Map.map[y, x]))
-                    {
-                        Console.SetCursorPosition(x, y);
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write((char)Configurations.EXPLOSION_TOKEN);
+            DrawToken(centerX, centerY, explosionPattern, ref playerCaughtInExplosion);
 
-                        // Check if the player is caught in the explosion
-                        if (x == Game.playerX && y == Game.playerY)
+            // Draw the 7x7 explosion tokens around the center based on defined offsets
+            foreach (var (offsetX, offsetY) in explosionOffsets)
+            {
+                int startX = centerX + offsetX;
+                int startY = centerY + offsetY;
+                if (!(Map.Check(startY, startX, Token.leftRightWall) || Map.Check(startY, startX, Token.topBottomWall)))
+                    DrawToken(startX, startY, explosionPattern, ref playerCaughtInExplosion);
+            }
+
+            // Allow time for the explosion to appear on screen
+            Thread.Sleep(200);
+
+            ClearExplosionArea(centerX, centerY, explosionOffsets);
+
+            // If player was in the explosion area, reduce life
+            if (playerCaughtInExplosion)
+                playerLives--;
+        }
+
+        // Draw explossion token.
+        private static void DrawToken(int startX, int startY, string[] token, ref bool playerCaughtInExplosion)
+        {
+            for (int offsetY = 0; offsetY < 7; offsetY++)
+            {
+                for (int offsetX = 0; offsetX < 7; offsetX++)
+                {
+                    int x = startX + offsetX;
+                    int y = startY + offsetY;
+
+                    if (x >= 0 && y >= 0 && x < Map.width && y < Map.height)
+                    {
+                        bool isWallLeftRight = Map.Check(y, x, Token.leftRightWall);
+                        bool isWallTopBottom = Map.Check(y, x, Token.topBottomWall);
+
+                        if (!(isWallLeftRight || isWallTopBottom))
                         {
-                            playerCaughtInExplosion = true;
+                            char explosionChar = token[offsetY][offsetX];
+
+                            Console.SetCursorPosition(x, y);
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write(explosionChar);
+
+                            // Check if the player is caught in the explosion
+                            // Check if the current explosion position overlaps with any part of the 7x7 player area
+                            for (int playerOffsetY = 0; playerOffsetY < 7; playerOffsetY++)
+                            {
+                                for (int playerOffsetX = 0; playerOffsetX < 7; playerOffsetX++)
+                                {
+                                    int playerPosX = Game.playerX + playerOffsetX;
+                                    int playerPosY = Game.playerY + playerOffsetY;
+
+                                    // Check if the current explosion coordinates match any player coordinates
+                                    if (x == playerPosX && y == playerPosY)
+                                    {
+                                        playerCaughtInExplosion = true;
+                                        break;
+                                    }
+                                }
+                                if (playerCaughtInExplosion)
+                                    break;
+                            }
                         }
                     }
                 }
             }
+        }
 
-            // Allow time for explosion to appear on screen
-            Thread.Sleep(200);
+        // Remove explossion tokens to all sides.
+        private static void ClearExplosionArea(int centerX, int centerY, List<(int, int)> offsets)
+        {
+            // Clear the central 7x7 block
+            ClearToken(centerX, centerY);
 
-            // Clear explosion area (avoid clearing walls)
-            foreach (var (x, y) in explosionRange)
+            // Clear the surrounding 7x7 blocks
+            foreach (var (offsetX, offsetY) in offsets)
             {
-                if (x >= 0 && y >= 0 && x < Map.width && y < Map.height)
+                int startX = centerX + offsetX;
+                int startY = centerY + offsetY;
+                if (!(Map.Check(startY, startX, Token.leftRightWall) || Map.Check(startY, startX, Token.topBottomWall)))
+                    ClearToken(startX, startY);
+            }
+        }
+
+        // Remove explossion token.
+        private static void ClearToken(int startX, int startY)
+        {
+            for (int offsetY = 0; offsetY < 7; offsetY++)
+            {
+                for (int offsetX = 0; offsetX < 7; offsetX++)
                 {
-                    // Only clear if it's not a wall or boundary
-                    if (Map.map[y, x] != (char)Configurations.WALL_LEFT_RIGHT && Map.map[y, x] != (char)Configurations.WALL_TOP_BOTTOM)
+                    int x = startX + offsetX;
+                    int y = startY + offsetY;
+
+                    if (x >= 0 && y >= 0 && x < Map.width && y < Map.height)
                     {
-                        Map.map[y, x] = ' ';
+                        bool isWallLeftRight = Map.Check(y, x, Token.leftRightWall);
+                        bool isWallTopBottom = Map.Check(y, x, Token.topBottomWall);
+
+                        if (!(isWallLeftRight || isWallTopBottom))
+                        {
+                            Map.map[y, x] = ' ';
+                            Console.SetCursorPosition(x, y);
+                            Console.Write(' ');
+                        }
                     }
                 }
             }
-
-            // If player was in explosion area, reduce life
-            if (playerCaughtInExplosion)
-                playerLives--;
         }
     }
 }
