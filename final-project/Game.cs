@@ -13,7 +13,7 @@ namespace final_project
         // Main Game Methods
         internal static void Execute()
         {
-            // Minimize buffersize for ASCII to fit on screen.
+            // Minimize buffersize for ASCII art to fit on screen.
             var simulator = new InputSimulator();
             for (int i = 0; i < 6; i++)
                 simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);

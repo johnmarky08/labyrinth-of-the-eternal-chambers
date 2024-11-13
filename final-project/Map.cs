@@ -235,7 +235,7 @@
             else DrawToken(y, x, ConsoleColor.White, null);
         }
 
-        // Token drawer (ASCII Supported)
+        // Token drawer (ASCII Art Supported)
         private static void DrawToken(int y, int x, ConsoleColor color, string? chosenToken)
         {
             Console.ForegroundColor = color;
@@ -310,7 +310,7 @@
             DrawToken(height + 7, 109,ConsoleColor.Yellow, guideToken);
         }
 
-        // Number to ASCII Number.
+        // Number to ASCII Art Number.
         private static string NumberToken(int number)
         {
             return number switch

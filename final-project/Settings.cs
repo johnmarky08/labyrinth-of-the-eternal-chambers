@@ -9,7 +9,7 @@
         MAX_BOMBS_ALLOWED = 3 // Max current bombs allowed in map.
     }
 
-    // ASCII Tokens
+    // ASCII Art Tokens
     internal class Token()
     {
         public static readonly string topBottomWall = "       \n       \n _____ \n|_____|\n       \n       \n       ";
