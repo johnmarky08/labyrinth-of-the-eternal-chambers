@@ -9,6 +9,18 @@ namespace final_project
         public static int oldPlayerX = 0;
         public static int oldPlayerY = 0;
         static bool gameOver = false;
+        // Ensure no boundaries at the starting point
+        public static readonly List<(int, int)> clearBoundary =
+            [
+                (7, 0),    // 1 blocks below
+                (0, 7),    // 1 blocks to the right
+                (7, 7),    // 1 blocks to the bottom-right
+                (14, 0),    // 2 blocks below
+                (0, 14),    // 2 blocks to the right
+                (14, 14),    // 2 blocks to the bottom-right
+                (14, 7),    // 2 blocks below, 1 block right
+                (7, 14),    // 1 block below, 2 blocks right
+            ];
 
         // Main Game Methods
         internal static void Execute()
@@ -24,6 +36,9 @@ namespace final_project
             Map.InitializeMap();
             Map.GenerateBoundaries();
             Map.DrawMap();
+
+            // Recycle ClearExplosionArea Method to ensure no boundaries at the player.
+            Bomb.ClearExplosionArea(playerX, playerY, clearBoundary);
 
             // Start the game.
             StartGameLoop();

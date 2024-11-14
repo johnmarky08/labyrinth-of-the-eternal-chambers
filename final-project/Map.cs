@@ -75,8 +75,8 @@
             {
                 for (int blockX = 1; blockX < blockWidth - 1; blockX++)
                 {
-                    // Randomly decide to place a boundary or leave space (chance of 30% for boundary)
-                    bool placeBoundary = random.Next(0, 100) < 30;
+                    // Randomly decide to place a boundary or leave space (chance of 40% for boundary)
+                    bool placeBoundary = random.Next(0, 100) < 40;
 
                     for (int y = 0; y < blockSize; y++)
                     {

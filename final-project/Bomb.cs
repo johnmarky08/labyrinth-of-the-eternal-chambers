@@ -10,6 +10,19 @@
         public int Y { get; } = y;
         private readonly DateTime placedAt = DateTime.Now;
 
+        // Define offsets for the explosion range (1 block above, below, left, right, and diagonally)
+        public static readonly List<(int, int)> explosionOffsets =
+            [
+                (-7, 0),   // 1 block above
+                (7, 0),    // 1 block below
+                (0, -7),   // 1 block to the left
+                (0, 7),    // 1 block to the right
+                (-7, -7),  // Top-left diagonal
+                (-7, 7),   // Top-right diagonal
+                (7, -7),   // Bottom-left diagonal
+                (7, 7)     // Bottom-right diagonal
+            ];
+
         public bool IsTimerUp() => (DateTime.Now - placedAt).TotalSeconds >= (int)Configurations.BOMB_TICKS;
 
         // Plant a new bomb.
@@ -56,19 +69,6 @@
             bool playerCaughtInExplosion = false;
 
             string[] explosionPattern = Token.bombExplosion.Split('\n');
-
-            // Define offsets for the explosion range (1 block above, below, left, right, and diagonally)
-            var explosionOffsets = new List<(int, int)>
-            {
-                (-7, 0),   // 1 block above
-                (7, 0),    // 1 block below
-                (0, -7),   // 1 block to the left
-                (0, 7),    // 1 block to the right
-                (-7, -7),  // Top-left diagonal
-                (-7, 7),   // Top-right diagonal
-                (7, -7),   // Bottom-left diagonal
-                (7, 7)     // Bottom-right diagonal
-            };
 
             DrawToken(centerX, centerY, explosionPattern, ref playerCaughtInExplosion);
 
@@ -135,10 +135,11 @@
         }
 
         // Remove explossion tokens to all sides.
-        private static void ClearExplosionArea(int centerX, int centerY, List<(int, int)> offsets)
+        public static void ClearExplosionArea(int centerX, int centerY, List<(int, int)> offsets)
         {
             // Clear the central 7x7 block
-            ClearToken(centerX, centerY);
+            if (!Map.Check(centerY, centerX, Token.player))
+                ClearToken(centerX, centerY);
 
             // Clear the surrounding 7x7 blocks
             foreach (var (offsetX, offsetY) in offsets)

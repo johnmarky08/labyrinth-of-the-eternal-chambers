@@ -11,7 +11,7 @@ namespace final_project
             Console.CursorVisible = false;
             var simulator = new InputSimulator();
             simulator.Keyboard.ModifiedKeyStroke(WindowsInput.Native.VirtualKeyCode.MENU, WindowsInput.Native.VirtualKeyCode.RETURN);
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             if (OperatingSystem.IsWindows())
                 Console.SetBufferSize(Console.WindowWidth, Console.LargestWindowHeight);
 
