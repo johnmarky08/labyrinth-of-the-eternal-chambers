@@ -18,5 +18,6 @@
         public static readonly string bomb = "       \n    __ \n  _/_/ \n / _ \\ \n| (_) |\n \\___/ \n       ";
         public static readonly string bombExplosion = "       \n   _   \n__/ \\__\n\\     /\n/_   _\\\n  \\_/  \n       ";
         public static readonly string player = "  ___  \n /. .\\ \n|  `  |\n \\_-_/ \n /| |\\ \n  |_|  \n  / \\  ";
+        public static readonly string enemy = "  ___  \n /. .\\ \n|  `  |\n \\_~_/ \n /| |\\ \n  |_|  \n  / \\  ";
     }
 }

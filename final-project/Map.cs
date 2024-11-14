@@ -76,7 +76,7 @@
                 for (int blockX = 1; blockX < blockWidth - 1; blockX++)
                 {
                     // Randomly decide to place a boundary or leave space (chance of 40% for boundary)
-                    bool placeBoundary = random.Next(0, 100) < 40;
+                    bool placeBoundary = random.Next(0, 100) < 100;
 
                     for (int y = 0; y < blockSize; y++)
                     {
@@ -154,19 +154,19 @@
             }
         }
 
-        private static void RenderPlayer()
+        private static void RenderPlayer(int renderY, int renderX, string token)
         {
-            string[] playerLines = Token.player.Split('\n');
+            string[] playerLines = token.Split('\n');
 
             // Render player in new position.
             for (int i = 0; i < playerLines.Length; i++)
             {
-                int playerY = Game.playerY + i;
+                int playerY = renderY + i;
                 if (playerY < map.GetLength(0))
                 {
                     for (int j = 0; j < playerLines[i].Length; j++)
                     {
-                        int playerX = Game.playerX + j;
+                        int playerX = renderX + j;
                         if (playerX < map.GetLength(1))
                         {
                             map[playerY, playerX] = playerLines[i][j];
@@ -180,7 +180,8 @@
         {
             string[] playerLines = Token.player.Split('\n');
 
-            RenderPlayer();
+            RenderPlayer(Game.playerY, Game.playerX, Token.player);
+            RenderPlayer(Game.enemyY, Game.enemyX, Token.enemy);
 
             if (Check(Game.oldPlayerY, Game.oldPlayerX, Token.player))
             {
@@ -260,7 +261,8 @@
         // Generate initial Map on console.
         public static void DrawMap()
         {
-            RenderPlayer();
+            RenderPlayer(Game.playerY, Game.playerX, Token.player);
+            RenderPlayer(Game.enemyY, Game.enemyX, Token.enemy);
             Console.Clear();
             for (int y = 0; y < height; y++)
             {
@@ -280,6 +282,11 @@
                     else if (Check(adjustedY, adjustedX, Token.player))
                     {
                         Console.ForegroundColor = ConsoleColor.Green; // Player color
+                        Console.Write(map[y, x]);
+                    }
+                    else if (Check(adjustedY, adjustedX, Token.enemy))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red; // Enemy color
                         Console.Write(map[y, x]);
                     }
                     else if (Check(adjustedY, adjustedX, Token.bomb))

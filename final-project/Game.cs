@@ -8,9 +8,11 @@ namespace final_project
         public static int playerY = 7;
         public static int oldPlayerX = 0;
         public static int oldPlayerY = 0;
+        public static int enemyX = (int)Configurations.WIDTH - 14;
+        public static int enemyY = (int)Configurations.HEIGHT - 14;
         static bool gameOver = false;
         // Ensure no boundaries at the starting point
-        public static readonly List<(int, int)> clearBoundary =
+        public static readonly List<(int, int)> clearBoundaryPlayer =
             [
                 (7, 0),    // 1 blocks below
                 (0, 7),    // 1 blocks to the right
@@ -20,6 +22,16 @@ namespace final_project
                 (14, 14),    // 2 blocks to the bottom-right
                 (14, 7),    // 2 blocks below, 1 block right
                 (7, 14),    // 1 block below, 2 blocks right
+            ];
+        public static readonly List<(int, int)> clearBoundaryEnemy =
+            [
+                (-7, 0),   // 1 block above
+                (0, -7),   // 1 block to the left
+                (-7, -7),  // Top-left diagonal
+                (0, -14),    // 2 blocks to the left
+                (-14, -14),    // 2 blocks to the upper-left
+                (-14, -7),    // 2 blocks above, 1 block left
+                (-7, -14)    // 1 block above, 2 blocks left
             ];
 
         // Main Game Methods
@@ -37,8 +49,9 @@ namespace final_project
             Map.GenerateBoundaries();
             Map.DrawMap();
 
-            // Recycle ClearExplosionArea Method to ensure no boundaries at the player.
-            Bomb.ClearExplosionArea(playerX, playerY, clearBoundary);
+            // Recycle ClearExplosionArea Method to ensure no boundaries at the player or enemy.
+            Bomb.ClearExplosionArea(playerX, playerY, clearBoundaryPlayer);
+            Bomb.ClearExplosionArea(enemyX, enemyY, clearBoundaryEnemy);
 
             // Start the game.
             StartGameLoop();

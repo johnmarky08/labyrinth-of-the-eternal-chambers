@@ -138,7 +138,7 @@
         public static void ClearExplosionArea(int centerX, int centerY, List<(int, int)> offsets)
         {
             // Clear the central 7x7 block
-            if (!Map.Check(centerY, centerX, Token.player))
+            if (!(Map.Check(centerY, centerX, Token.player) || Map.Check(centerY, centerX, Token.enemy)))
                 ClearToken(centerX, centerY);
 
             // Clear the surrounding 7x7 blocks
