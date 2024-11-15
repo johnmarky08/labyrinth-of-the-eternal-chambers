@@ -4,35 +4,12 @@ namespace final_project
 {
     internal class Game
     {
-        public static int playerX = 7;
-        public static int playerY = 7;
-        public static int oldPlayerX = 0;
-        public static int oldPlayerY = 0;
-        public static int enemyX = (int)Configurations.WIDTH - 14;
-        public static int enemyY = (int)Configurations.HEIGHT - 14;
-        static bool gameOver = false;
-        // Ensure no boundaries at the starting point
-        public static readonly List<(int, int)> clearBoundaryPlayer =
-            [
-                (7, 0),    // 1 blocks below
-                (0, 7),    // 1 blocks to the right
-                (7, 7),    // 1 blocks to the bottom-right
-                (14, 0),    // 2 blocks below
-                (0, 14),    // 2 blocks to the right
-                (14, 14),    // 2 blocks to the bottom-right
-                (14, 7),    // 2 blocks below, 1 block right
-                (7, 14),    // 1 block below, 2 blocks right
-            ];
-        public static readonly List<(int, int)> clearBoundaryEnemy =
-            [
-                (-7, 0),   // 1 block above
-                (0, -7),   // 1 block to the left
-                (-7, -7),  // Top-left diagonal
-                (0, -14),    // 2 blocks to the left
-                (-14, -14),    // 2 blocks to the upper-left
-                (-14, -7),    // 2 blocks above, 1 block left
-                (-7, -14)    // 1 block above, 2 blocks left
-            ];
+        public static int playerX = ((int)Configurations.WIDTH / 2) / Map.blockSize * Map.blockSize;
+        public static int playerY = ((int)Configurations.HEIGHT / 2) / Map.blockSize * Map.blockSize;
+        public static int oldPlayerX = playerX;
+        public static int oldPlayerY = playerY;
+        public static int roomEntered = 0;
+        public static bool gameOver = false;
 
         // Main Game Methods
         internal static void Execute()
@@ -49,21 +26,14 @@ namespace final_project
             Map.GenerateBoundaries();
             Map.DrawMap();
 
-            // Recycle ClearExplosionArea Method to ensure no boundaries at the player or enemy.
-            Bomb.ClearExplosionArea(playerX, playerY, clearBoundaryPlayer);
-            Bomb.ClearExplosionArea(enemyX, enemyY, clearBoundaryEnemy);
-
             // Start the game.
             StartGameLoop();
         }
 
         static void StartGameLoop()
         {
-            while (Bomb.playerLives > 0 && !gameOver)
+            while (!gameOver)
             {
-                Map.DrawScore();
-                Bomb.Update();
-
                 if (Console.KeyAvailable)
                 {
                     var key = Console.ReadKey(true).Key;
@@ -73,12 +43,12 @@ namespace final_project
                         gameOver = true;
                     }
 
-                    Thread.Sleep(100);
                     MovePlayer(key);
                     Map.SpecificDraw(playerY, playerX); // Update the map only if the player has moved to a valid position
                 }
 
-                Thread.Sleep(50);
+                Map.DrawScore();
+                Thread.Sleep(300);
             }
 
             // Game Over
@@ -108,24 +78,20 @@ namespace final_project
             {
                 case ConsoleKey.W:
                 case ConsoleKey.UpArrow:
-                    newY = playerY - 7;
+                    newY -= 7;
                     break;
                 case ConsoleKey.S:
                 case ConsoleKey.DownArrow:
-                    newY = playerY + 7;
+                    newY += 7;
                     break;
                 case ConsoleKey.A:
                 case ConsoleKey.LeftArrow:
-                    newX = playerX - 7;
+                    newX -= 7;
                     break;
                 case ConsoleKey.D:
                 case ConsoleKey.RightArrow:
-                    newX = playerX + 7;
+                    newX += 7;
                     break;
-                case ConsoleKey.Spacebar:
-                case ConsoleKey.Enter:
-                    Bomb.Plant();
-                    return;
                 default: return;
             }
 

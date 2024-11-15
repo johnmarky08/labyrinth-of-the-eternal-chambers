@@ -1,4 +1,5 @@
-﻿namespace final_project
+﻿
+namespace final_project
 {
     internal class Map
     {
@@ -9,6 +10,13 @@
         public static readonly int blockHeight = height / blockSize;
         public static readonly char[,] map = new char[height, width];
         public static readonly Random random = new();
+        public static readonly List<(int, int)> offsets =
+            [
+                (-7, 0),   // 1 block above
+                (7, 0),    // 1 block below
+                (0, -7),   // 1 block to the left
+                (0, 7),    // 1 block to the right
+            ];
 
         // Check if map[y, x] is the same with the given representationToken.
         public static bool Check(int startY, int startX, string representationToken)
@@ -75,8 +83,8 @@
             {
                 for (int blockX = 1; blockX < blockWidth - 1; blockX++)
                 {
-                    // Randomly decide to place a boundary or leave space (chance of 40% for boundary)
-                    bool placeBoundary = random.Next(0, 100) < 100;
+                    // Randomly decide to place a boundary or leave space (chance of 50% for boundary)
+                    bool placeBoundary = random.Next(0, 100) < 50;
 
                     for (int y = 0; y < blockSize; y++)
                     {
@@ -181,9 +189,8 @@
             string[] playerLines = Token.player.Split('\n');
 
             RenderPlayer(Game.playerY, Game.playerX, Token.player);
-            RenderPlayer(Game.enemyY, Game.enemyX, Token.enemy);
 
-            if (Check(Game.oldPlayerY, Game.oldPlayerX, Token.player))
+            if (Check(Game.oldPlayerY, Game.oldPlayerX, Token.player) && (!(Game.oldPlayerX == Game.playerX && Game.oldPlayerY == Game.playerY)))
             {
                 // Remove old player on old posistion
                 for (int i = 0; i < playerLines.Length; i++)
@@ -205,38 +212,16 @@
                 }
             }
 
-            // Place bombs in the map array
-            foreach (var bomb in Bomb.bombs)
-            {
-                var bombLines = Token.bomb.Split('\n');
-                for (int i = 0; i < bombLines.Length; i++)
-                {
-                    int bombY = bomb.Y + i;
-                    if (bombY < map.GetLength(0))
-                    {
-                        for (int j = 0; j < bombLines[i].Length; j++)
-                        {
-                            int bombX = bomb.X + j;
-                            if (bombX < map.GetLength(1))
-                            {
-                                map[bombY, bombX] = bombLines[i][j];
-                            }
-                        }
-                    }
-                }
-            }
-
             // Draw tokens.
             int adjustedY = y / blockSize * blockSize;
             int adjustedX = x / blockSize * blockSize;
-            if (Check(adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary);
-            else if (Check(adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player);
-            else if (Check(adjustedY, adjustedX, Token.bomb)) DrawToken(y, x, ConsoleColor.Red, Token.bomb);
-            else DrawToken(y, x, ConsoleColor.White, null);
+            if (Check(adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary, null);
+            else if (Check(adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player, null);
+            else DrawToken(y, x, ConsoleColor.White, null, null);
         }
 
         // Token drawer (ASCII Art Supported)
-        private static void DrawToken(int y, int x, ConsoleColor color, string? chosenToken)
+        private static void DrawToken(int y, int x, ConsoleColor color, string? chosenToken, bool? isScore)
         {
             Console.ForegroundColor = color;
 
@@ -246,6 +231,32 @@
                 {
                     Console.SetCursorPosition(x, y + i);
                     Console.Write(' ');
+                }
+                return;
+            }
+            else if (isScore == true) // Define score as true, since its a nullable one
+            {
+                // Split the string into chunks of 8 characters
+                List<string> chunks = Enumerable.Range(0, (int)Math.Ceiling(chosenToken.Length / 8.0))
+                               .Select(i => chosenToken.Substring(i * 8, Math.Min(8, chosenToken.Length - i * 8)))
+                               .ToList();
+
+                // Group chunks into sub-arrays of up to 6 chunks each
+                List<string[]> groupedChunks = chunks
+                                    .Select((chunk, index) => new { chunk, index })
+                                    .GroupBy(x => x.index / 6)
+                                    .Select(g => g.Select(x => x.chunk).ToArray())
+                                    .ToList();
+                int temporaryY = y;
+                foreach (string[] groupChunk in groupedChunks)
+                {
+                    foreach (string chunk in groupChunk)
+                    {
+                        Console.SetCursorPosition(x, temporaryY++);
+                        Console.Write(chunk);
+                    }
+                    x += 8;
+                    temporaryY = y;
                 }
                 return;
             }
@@ -262,7 +273,6 @@
         public static void DrawMap()
         {
             RenderPlayer(Game.playerY, Game.playerX, Token.player);
-            RenderPlayer(Game.enemyY, Game.enemyX, Token.enemy);
             Console.Clear();
             for (int y = 0; y < height; y++)
             {
@@ -284,16 +294,6 @@
                         Console.ForegroundColor = ConsoleColor.Green; // Player color
                         Console.Write(map[y, x]);
                     }
-                    else if (Check(adjustedY, adjustedX, Token.enemy))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red; // Enemy color
-                        Console.Write(map[y, x]);
-                    }
-                    else if (Check(adjustedY, adjustedX, Token.bomb))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red; // Bomb color
-                        Console.Write(map[y, x]);
-                    }
                     else
                     {
                         Console.ResetColor(); // Default color for other spaces
@@ -306,27 +306,28 @@
         // Display current player status.
         public static void DrawScore()
         {
-            const string livesToken = "  _      _                    ____                          _         _                   \r\n | |    (_)__   __ ___  ___  |  _ \\  ___  _ __ ___    __ _ (_) _ __  (_) _ __    __ _  _  \r\n | |    | |\\ \\ / // _ \\/ __| | |_) |/ _ \\| '_ ` _ \\  / _` || || '_ \\ | || '_ \\  / _` |(_) \r\n | |___ | | \\ V /|  __/\\__ \\ |  _ <|  __/| | | | | || (_| || || | | || || | | || (_| | _  \r\n |_____||_|  \\_/  \\___||___/ |_| \\_\\\\___||_| |_| |_| \\__,_||_||_| |_||_||_| |_| \\__, |(_) \r\n                                                                                |___/     ";
-            const string bombsToken = "  ____                     _            ____                          _         _                   \r\n | __ )   ___   _ __ ___  | |__   ___  |  _ \\  ___  _ __ ___    __ _ (_) _ __  (_) _ __    __ _  _  \r\n |  _ \\  / _ \\ | '_ ` _ \\ | '_ \\ / __| | |_) |/ _ \\| '_ ` _ \\  / _` || || '_ \\ | || '_ \\  / _` |(_) \r\n | |_) || (_) || | | | | || |_) |\\__ \\ |  _ <|  __/| | | | | || (_| || || | | || || | | || (_| | _  \r\n |____/  \\___/ |_| |_| |_||_.__/ |___/ |_| \\_\\\\___||_| |_| |_| \\__,_||_||_| |_||_||_| |_| \\__, |(_) \r\n                                                                                          |___/     ";
-            const string guideToken = "   ____        __ _  _  _                                                    _                  __  _                                   _              _              __  \r\n  / /\\ \\      / /(_)| || |  _ __  ___   __ _   ___  _ __    ___  _ __  __ _ | |_  ___    __ _  / _|| |_  ___  _ __    ___ __  __ _ __  | |  ___   ___ (_)  ___   _ __ \\ \\ \r\n | |  \\ \\ /\\ / / | || || | | '__|/ _ \\ / _` | / _ \\| '_ \\  / _ \\| '__|/ _` || __|/ _ \\  / _` || |_ | __|/ _ \\| '__|  / _ \\\\ \\/ /| '_ \\ | | / _ \\ / __|| | / _ \\ | '_ \\ | |\r\n | |   \\ V  V /  | || || | | |  |  __/| (_| ||  __/| | | ||  __/| |  | (_| || |_|  __/ | (_| ||  _|| |_|  __/| |    |  __/ >  < | |_) || || (_) |\\__ \\| || (_) || | | || |\r\n | |    \\_/\\_/   |_||_||_| |_|   \\___| \\__, | \\___||_| |_| \\___||_|   \\__,_| \\__|\\___|  \\__,_||_|   \\__|\\___||_|     \\___|/_/\\_\\| .__/ |_| \\___/ |___/|_| \\___/ |_| |_|| |\r\n  \\_\\                                  |___/                                                                                    |_|                                   /_/ ";
-            DrawToken(height + 1, 0, ConsoleColor.Yellow, livesToken);
-            DrawToken(height + 1, 90, Bomb.playerLives > 1 ? ConsoleColor.Yellow : ConsoleColor.Red, NumberToken(Bomb.playerLives));
-            DrawToken(height + 7, 0, ConsoleColor.Yellow, bombsToken);
-            DrawToken(height + 7, 100, (Bomb.maxBombs - Bomb.currentBombs) < 1 ? ConsoleColor.Red : ConsoleColor.Yellow, NumberToken(Bomb.maxBombs - Bomb.currentBombs));
-            DrawToken(height + 7, 109, ConsoleColor.Yellow, guideToken);
+            const string livesToken = "  ____                             _____       _                    _      \r\n |  _ \\ ___   ___  _ __ ___  ___  | ____|_ __ | |_ ___ _ __ ___  __| |  _  \r\n | |_) / _ \\ / _ \\| '_ ` _ \\/ __| |  _| | '_ \\| __/ _ | '__/ _ \\/ _` | (_) \r\n |  _ | (_) | (_) | | | | | \\__ \\ | |___| | | | ||  __| | |  __| (_| |  _  \r\n |_| \\_\\___/ \\___/|_| |_| |_|___/ |_____|_| |_|\\__\\___|_|  \\___|\\__,_| (_) \r\n                                                                           ";
+            DrawToken(height + 1, 0, ConsoleColor.Yellow, livesToken, null);
+            DrawToken(height + 1, 75, ConsoleColor.Yellow, NumberToken(Game.roomEntered), true);
         }
 
         // Number to ASCII Art Number.
         private static string NumberToken(int number)
         {
-            return number switch
-            {
-                0 => "   ___  \r\n  / _ \\ \r\n | | | |\r\n | |_| |\r\n  \\___/ \r\n        ",
-                1 => "  _     \r\n / |    \r\n | |    \r\n | |    \r\n |_|    \r\n        ",
-                2 => "  ____  \r\n |___ \\ \r\n   __) |\r\n  / __/ \r\n |_____|\r\n        ",
-                3 => "  _____ \r\n |___ / \r\n   |_ \\ \r\n  ___) |\r\n |____/ \r\n        ",
-                _ => "",
-            };
+            string numberToken = Convert.ToString(number);
+
+            numberToken = numberToken.Replace("0", "   ___    / _ \\  | | | | | |_| |  \\___/         ");
+            numberToken = numberToken.Replace("1", "   __     /  |    |  |    |  |    |__|          ");
+            numberToken = numberToken.Replace("2", "  ____   |___ \\    __) |  / __/  |_____|        ");
+            numberToken = numberToken.Replace("3", "  _____  |___ /    |_ \\   ___) | |____/         ");
+            numberToken = numberToken.Replace("4", " _  _   | || |  | || |_ |__   _|   |_|          ");
+            numberToken = numberToken.Replace("5", "  ____   | ___|  |___ \\   ___) | |____/         ");
+            numberToken = numberToken.Replace("6", "   __     / /_   | '_ \\  | (_) |  \\___/         ");
+            numberToken = numberToken.Replace("7", "  _____  |___  |    / /    / /    /_/           ");
+            numberToken = numberToken.Replace("8", "   ___    ( _ )   / _ \\  | (_) |  \\___/         ");
+            numberToken = numberToken.Replace("9", "   ___    / _ \\  | (_) |  \\__, |    /_/         ");
+
+            return numberToken;
         }
     }
 }
