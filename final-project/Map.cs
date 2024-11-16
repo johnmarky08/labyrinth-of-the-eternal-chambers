@@ -131,7 +131,7 @@ namespace final_project
                 int midY = startY + dy;
 
                 if (newX >= 0 && newY >= 0 && newX < width && newY < height && !visited.Contains((newX, newY)) &&
-                    !(Check(newY, newX, Token.topBottomWall) || Check(newY, newX, Token.leftRightWall) || Check(newY, newX, Token.door)))
+                    !(Check(newY, newX, Token.topBottomWall) || Check(newY, newX, Token.leftRightWall) || IsDoor(newY, newX)))
                 {
                     // Render the path between the current and new cell
                     RenderToken(midY, midX, Token.whitespace);
@@ -146,10 +146,20 @@ namespace final_project
         public static void PlaceExits()
         {
             // Place exits at the four corners
-            RenderToken(0, 7, Token.door);
-            RenderToken(0, width - 14, Token.door);
-            RenderToken(height - 7, 7, Token.door);
-            RenderToken(height - 7, width - 14, Token.door);
+            RenderToken(0, 7, Token.door1);
+            RenderToken(0, width - 14, Token.door2);
+            RenderToken(height - 7, 7, Token.door3);
+            RenderToken(height - 7, width - 14, Token.door4);
+        }
+
+        // Check what door is it
+        public static int WhatDoor(int y, int x)
+        {
+            if (Check(y, x, Token.door1)) return 1;
+            else if (Check(y, x, Token.door2)) return 2;
+            else if (Check(y, x, Token.door3)) return 3;
+            else if (Check(y, x, Token.door4)) return 4;
+            else return 0;
         }
 
         private static void RenderToken(int renderY, int renderX, string token)
@@ -284,7 +294,7 @@ namespace final_project
                         Console.ForegroundColor = ConsoleColor.Green; // Player color
                         Console.Write(map[y, x]);
                     }
-                    else if (Check(adjustedY, adjustedX, Token.door))
+                    else if (IsDoor(adjustedY, adjustedX))
                     {
                         Console.ForegroundColor = ConsoleColor.Green; // Teleportation color
                         Console.Write(map[y, x]);
@@ -296,6 +306,11 @@ namespace final_project
                     }
                 }
             }
+        }
+
+        public static bool IsDoor(int y, int x)
+        {
+            return (Check(y, x, Token.door1) || Check(y, x, Token.door2) || Check(y, x, Token.door3) || Check(y, x, Token.door4));
         }
 
         // Display current player status.

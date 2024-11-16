@@ -4,12 +4,14 @@ namespace final_project
 {
     internal class Game
     {
-        public static int playerX = ((int)Configurations.WIDTH / 2) / Map.blockSize * Map.blockSize;
-        public static int playerY = ((int)Configurations.HEIGHT / 2) / Map.blockSize * Map.blockSize;
+        public static int defaultPlayerX = ((int)Configurations.WIDTH / 2) / Map.blockSize * Map.blockSize;
+        public static int defaultPlayerY = ((int)Configurations.HEIGHT / 2) / Map.blockSize * Map.blockSize;
+        public static int playerX = defaultPlayerX;
+        public static int playerY = defaultPlayerY;
         public static int oldPlayerX = playerX;
         public static int oldPlayerY = playerY;
         public static int roomsEntered = 0;
-        public static int roomNumber = 1;
+        public static int roomNumber = 0;
         public static bool gameOver = false;
 
         // Main Game Methods
@@ -28,6 +30,7 @@ namespace final_project
             Map.PlaceExits();
             Map.GeneratePath(playerX, playerY);
             Map.DrawMap();
+            Logic.GeneratePattern();
 
             // Start the game.
             StartGameLoop();
@@ -48,6 +51,10 @@ namespace final_project
 
                     MovePlayer(key);
                     Map.SpecificDraw(playerY, playerX); // Update the map only if the player has moved to a valid position
+                }
+                else if (Logic.currentPattern.Equals(Logic.pattern))
+                {
+                    gameOver = true;
                 }
 
                 Map.DrawScore();
@@ -101,8 +108,26 @@ namespace final_project
                   Map.Check(newY, newX, Token.leftRightWall) ||
                   Map.Check(newY, newX, Token.topBottomWall);
 
-            if (Map.Check(newY, newX, Token.door)) {
+            if (Map.IsDoor(newY, newX))
+            {
                 roomsEntered++;
+
+                int nextDoor = Map.WhatDoor(newY, newX);
+                if (Logic.CheckPattern(nextDoor))
+                {
+                    Logic.currentPattern += nextDoor;
+                    roomNumber++;
+                }
+                else
+                {
+                    Logic.currentPattern = "";
+                    roomNumber = 0;
+                }
+
+                oldPlayerX = playerX;
+                oldPlayerY = playerY;
+                playerX = defaultPlayerX;
+                playerY = defaultPlayerY;
             }
             else if (!isWall && newX > 0 && newX < Map.width && newY > 0 && newY < Map.height)
             {
