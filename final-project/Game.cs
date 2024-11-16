@@ -8,7 +8,8 @@ namespace final_project
         public static int playerY = ((int)Configurations.HEIGHT / 2) / Map.blockSize * Map.blockSize;
         public static int oldPlayerX = playerX;
         public static int oldPlayerY = playerY;
-        public static int roomEntered = 0;
+        public static int roomsEntered = 0;
+        public static int roomNumber = 1;
         public static bool gameOver = false;
 
         // Main Game Methods
@@ -23,7 +24,9 @@ namespace final_project
             Thread.Sleep(100);
             Console.CursorVisible = false;
             Map.InitializeMap();
-            Map.GenerateBoundaries();
+            Map.RenderBoundaries();
+            Map.PlaceExits();
+            Map.GeneratePath(playerX, playerY);
             Map.DrawMap();
 
             // Start the game.
@@ -48,7 +51,6 @@ namespace final_project
                 }
 
                 Map.DrawScore();
-                Thread.Sleep(300);
             }
 
             // Game Over
@@ -99,7 +101,10 @@ namespace final_project
                   Map.Check(newY, newX, Token.leftRightWall) ||
                   Map.Check(newY, newX, Token.topBottomWall);
 
-            if (!isWall && newX > 0 && newX < Map.width && newY > 0 && newY < Map.height)
+            if (Map.Check(newY, newX, Token.door)) {
+                roomsEntered++;
+            }
+            else if (!isWall && newX > 0 && newX < Map.width && newY > 0 && newY < Map.height)
             {
                 oldPlayerX = playerX;
                 oldPlayerY = playerY;

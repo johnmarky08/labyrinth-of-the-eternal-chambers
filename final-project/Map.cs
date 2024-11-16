@@ -10,13 +10,13 @@ namespace final_project
         public static readonly int blockHeight = height / blockSize;
         public static readonly char[,] map = new char[height, width];
         public static readonly Random random = new();
-        public static readonly List<(int, int)> offsets =
-            [
-                (-7, 0),   // 1 block above
-                (7, 0),    // 1 block below
-                (0, -7),   // 1 block to the left
-                (0, 7),    // 1 block to the right
-            ];
+        private static readonly (int dx, int dy)[] directions =
+        {
+            (0, -7), // Up
+            (7, 0),  // Right
+            (0, 7),  // Down
+            (-7, 0)  // Left
+        };
 
         // Check if map[y, x] is the same with the given representationToken.
         public static bool Check(int startY, int startX, string representationToken)
@@ -74,8 +74,7 @@ namespace final_project
             }
         }
 
-        // Generate random removable walls inside the map.
-        public static void GenerateBoundaries()
+        public static void RenderBoundaries()
         {
             string[] boundaryLines = Token.boundary.Split('\n');
 
@@ -83,9 +82,6 @@ namespace final_project
             {
                 for (int blockX = 1; blockX < blockWidth - 1; blockX++)
                 {
-                    // Randomly decide to place a boundary or leave space (chance of 50% for boundary)
-                    bool placeBoundary = random.Next(0, 100) < 50;
-
                     for (int y = 0; y < blockSize; y++)
                     {
                         for (int x = 0; x < blockSize; x++)
@@ -95,74 +91,68 @@ namespace final_project
 
                             if (mapY < map.GetLength(0) && mapX < map.GetLength(1))
                             {
-                                map[mapY, mapX] = placeBoundary ? boundaryLines[y][x] : ' ';
+                                map[mapY, mapX] = boundaryLines[y][x];
                             }
                         }
                     }
                 }
             }
-
-            // Start carving a random path from a random position
-            CarvePath(random.Next(1, blockHeight - 1), random.Next(1, blockWidth - 1));
         }
 
-        // Recursive method to carve the boundary with a safe recursion depth limit
-        public static void CarvePath(int blockY, int blockX, int depth = 0)
+        public static void GeneratePath(int currentX, int currentY, HashSet<(int, int)>? visited = null)
         {
-            int maxDepth = 1000; // Max depth to prevent stack overflow
-            if (depth > maxDepth)
-                return;
+            // Initialize the visited set if null
+            visited ??= [];
 
-            // Directions to carve: up, down, left, right (moving 2 steps to carve 7x7 blocks)
-            var directions = new (int, int)[] { (-2, 0), (2, 0), (0, -2), (0, 2) };
+            // Adjust coordinates to match the 7x7 grid
+            int startY = currentY / blockSize * blockSize;
+            int startX = currentX / blockSize * blockSize;
 
-            // Shuffle directions to ensure randomness
-            directions = [.. directions.OrderBy(d => random.Next())];
-
-            foreach (var (dy, dx) in directions)
+            // Ensure the current position is within bounds and not already visited
+            if (visited.Contains((startX, startY)))
             {
-                int newY = blockY + dy, newX = blockX + dx;
+                return;
+            }
 
-                if (newY > 0 && newY < map.GetLength(0) / blockSize - 1 && newX > 0 && newX < map.GetLength(1) / blockSize - 1)
+            // Mark current position as visited
+            visited.Add((startX, startY));
+
+            RenderToken(startY, startX, Token.whitespace);
+
+            var random = new Random();
+            var directionsList = new List<(int, int)>(directions);
+            directionsList.Sort((a, b) => random.Next().CompareTo(random.Next()));
+
+            foreach (var (dx, dy) in directionsList)
+            {
+                int newX = startX + dx * 2; // Step size of 2 to create pathways
+                int newY = startY + dy * 2;
+                int midX = startX + dx; // Midpoint between current and new position
+                int midY = startY + dy;
+
+                if (newX >= 0 && newY >= 0 && newX < width && newY < height && !visited.Contains((newX, newY)) &&
+                    !(Check(newY, newX, Token.topBottomWall) || Check(newY, newX, Token.leftRightWall) || Check(newY, newX, Token.door)))
                 {
-                    string[] boundaryLines = Token.boundary.Split('\n');
-                    bool canCarve = true;
-                    for (int y = 0; y < blockSize; y++)
-                    {
-                        for (int x = 0; x < blockSize; x++)
-                        {
-                            int mapY = (newY * blockSize) + y;
-                            int mapX = (newX * blockSize) + x;
-                            if (map[mapY, mapX] != boundaryLines[y][x])
-                            {
-                                canCarve = false;
-                                break;
-                            }
-                        }
-                        if (!canCarve) break;
-                    }
+                    // Render the path between the current and new cell
+                    RenderToken(midY, midX, Token.whitespace);
+                    RenderToken(newY, newX, Token.whitespace);
 
-                    if (canCarve)
-                    {
-                        for (int y = 0; y < blockSize; y++)
-                        {
-                            for (int x = 0; x < blockSize; x++)
-                            {
-                                int mapY = (newY * blockSize) + y;
-                                int mapX = (newX * blockSize) + x;
-                                map[mapY, mapX] = ' ';
-                            }
-                        }
-
-                        map[(blockY * blockSize) + dy / 2, (blockX * blockSize) + dx / 2] = ' ';
-
-                        CarvePath(newY, newX, depth + 1);
-                    }
+                    GeneratePath(newX, newY, visited); // Recursively generate the maze
                 }
             }
         }
 
-        private static void RenderPlayer(int renderY, int renderX, string token)
+        // Ensure exits are accessible and place them at the four corners
+        public static void PlaceExits()
+        {
+            // Place exits at the four corners
+            RenderToken(0, 7, Token.door);
+            RenderToken(0, width - 14, Token.door);
+            RenderToken(height - 7, 7, Token.door);
+            RenderToken(height - 7, width - 14, Token.door);
+        }
+
+        private static void RenderToken(int renderY, int renderX, string token)
         {
             string[] playerLines = token.Split('\n');
 
@@ -188,7 +178,7 @@ namespace final_project
         {
             string[] playerLines = Token.player.Split('\n');
 
-            RenderPlayer(Game.playerY, Game.playerX, Token.player);
+            RenderToken(Game.playerY, Game.playerX, Token.player);
 
             if (Check(Game.oldPlayerY, Game.oldPlayerX, Token.player) && (!(Game.oldPlayerX == Game.playerX && Game.oldPlayerY == Game.playerY)))
             {
@@ -272,7 +262,7 @@ namespace final_project
         // Generate initial Map on console.
         public static void DrawMap()
         {
-            RenderPlayer(Game.playerY, Game.playerX, Token.player);
+            RenderToken(Game.playerY, Game.playerX, Token.player);
             Console.Clear();
             for (int y = 0; y < height; y++)
             {
@@ -294,6 +284,11 @@ namespace final_project
                         Console.ForegroundColor = ConsoleColor.Green; // Player color
                         Console.Write(map[y, x]);
                     }
+                    else if (Check(adjustedY, adjustedX, Token.door))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green; // Teleportation color
+                        Console.Write(map[y, x]);
+                    }
                     else
                     {
                         Console.ResetColor(); // Default color for other spaces
@@ -306,9 +301,13 @@ namespace final_project
         // Display current player status.
         public static void DrawScore()
         {
-            const string livesToken = "  ____                             _____       _                    _      \r\n |  _ \\ ___   ___  _ __ ___  ___  | ____|_ __ | |_ ___ _ __ ___  __| |  _  \r\n | |_) / _ \\ / _ \\| '_ ` _ \\/ __| |  _| | '_ \\| __/ _ | '__/ _ \\/ _` | (_) \r\n |  _ | (_) | (_) | | | | | \\__ \\ | |___| | | | ||  __| | |  __| (_| |  _  \r\n |_| \\_\\___/ \\___/|_| |_| |_|___/ |_____|_| |_|\\__\\___|_|  \\___|\\__,_| (_) \r\n                                                                           ";
-            DrawToken(height + 1, 0, ConsoleColor.Yellow, livesToken, null);
-            DrawToken(height + 1, 75, ConsoleColor.Yellow, NumberToken(Game.roomEntered), true);
+            const string roomEntered = "  ____                             _____       _                    _      \r\n |  _ \\ ___   ___  _ __ ___  ___  | ____|_ __ | |_ ___ _ __ ___  __| |  _  \r\n | |_) / _ \\ / _ \\| '_ ` _ \\/ __| |  _| | '_ \\| __/ _ | '__/ _ \\/ _` | (_) \r\n |  _ | (_) | (_) | | | | | \\__ \\ | |___| | | | ||  __| | |  __| (_| |  _  \r\n |_| \\_\\___/ \\___/|_| |_| |_|___/ |_____|_| |_|\\__\\___|_|  \\___|\\__,_| (_) \r\n                                                                           ";
+            const string roomNumber = "  ____                          \r\n |  _ \\ ___   ___  _ __ ___  _  \r\n | |_) / _ \\ / _ \\| '_ ` _ \\(_) \r\n |  _ | (_) | (_) | | | | | |_  \r\n |_| \\_\\___/ \\___/|_| |_| |_(_) \r\n                                ";
+
+            DrawToken(height + 1, 0, ConsoleColor.Yellow, roomEntered, null);
+            DrawToken(height + 1, 75, ConsoleColor.Yellow, NumberToken(Game.roomsEntered), true);
+            DrawToken(height + 1, width - 45, ConsoleColor.Red, roomNumber, null);
+            DrawToken(height + 1, width - 13, ConsoleColor.Red, NumberToken(Game.roomNumber), true);
         }
 
         // Number to ASCII Art Number.
