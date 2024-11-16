@@ -12,7 +12,7 @@ namespace final_project
             Console.CursorVisible = false;
             var simulator = new InputSimulator();
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.RETURN);
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
             if (OperatingSystem.IsWindows())
                 Console.SetBufferSize(Console.WindowWidth, Console.LargestWindowHeight);
 
@@ -34,7 +34,15 @@ namespace final_project
                 ];
                 Console.Clear();
                 nextText = !nextText;
-                MoveText(gameTitle, gameStartingButtonsTexts, nextText);
+
+                MoveText(gameTitle, nextText);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(gameStartingButtonsTexts[0]);
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(gameStartingButtonsTexts[1]);
+
 
                 Thread.Sleep(500);
             }
@@ -71,26 +79,17 @@ namespace final_project
         }
 
         // Moving text menu animation.
-        static void MoveText(string title, string[] texts, bool next)
+        static void MoveText(string title, bool next)
         {
             string currentTitle = title;
-            string[] currentTexts = texts;
             
             if (next)
             {
                 currentTitle = currentTitle.Insert(0, "\n");
-                currentTexts[0] = currentTexts[0].Insert(0, "\n");
-                currentTexts[1] = currentTexts[1].Insert(0, "\n");
             }
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(currentTitle);
-            
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(currentTexts[0]);
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(currentTexts[1]);
         }
     }
 }

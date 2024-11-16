@@ -8,7 +8,7 @@ namespace final_project
         public static readonly int height = (int)Configurations.HEIGHT;
         public static readonly int blockWidth = width / blockSize;
         public static readonly int blockHeight = height / blockSize;
-        public static readonly char[,] map = new char[height, width];
+        public static readonly List<char[,]> maps = [];
         public static readonly Random random = new();
         private static readonly (int dx, int dy)[] directions =
         {
@@ -17,9 +17,10 @@ namespace final_project
             (0, 7),  // Down
             (-7, 0)  // Left
         };
+        public static char[,] currentMap = { };
 
         // Check if map[y, x] is the same with the given representationToken.
-        public static bool Check(int startY, int startX, string representationToken)
+        public static bool Check(char[,] map, int startY, int startX, string representationToken)
         {
             string[] expectedRows = representationToken.Split('\n');
 
@@ -43,8 +44,50 @@ namespace final_project
             return true;
         }
 
+        public static void CreateMaps()
+        {
+            for (int i = 0; i < (int)Configurations.PATTERN_LENGTH; i++)
+                maps.Add(new char[height, width]);
+
+            foreach (char[,] map in maps)
+            {
+                InitializeMap(map);
+                RenderBoundaries(map);
+                PlaceExits(map);
+                GeneratePath(map, Game.defaultPlayerX, Game.defaultPlayerY);
+            }
+        }
+
+        public static void ChangeMap(int mapNumber, int playerY, int playerX)
+        {
+            char[,] oldMap = currentMap;
+            currentMap = maps[mapNumber - 1];
+
+            if (!oldMap.Equals(currentMap))
+            {
+                string[] playerLines = Token.player.Split('\n');
+                // Remove old player on old map
+                for (int i = 0; i < playerLines.Length; i++)
+                {
+                    int oldPlayerY = playerY + i;
+                    if (oldPlayerY < oldMap.GetLength(0))
+                    {
+                        for (int j = 0; j < playerLines[i].Length; j++)
+                        {
+                            int oldPlayerX = playerX + j;
+                            if (oldPlayerX < oldMap.GetLength(1))
+                            {
+                                oldMap[oldPlayerY, oldPlayerX] = ' ';
+                            }
+                        }
+                    }
+                }
+                DrawMap();
+            }
+        }
+
         // Generate Walls.
-        public static void InitializeMap()
+        public static void InitializeMap(char[,] map)
         {
             string[] topBottomWallLines = Token.topBottomWall.Split('\n');
             string[] leftRightWallLines = Token.leftRightWall.Split('\n');
@@ -74,7 +117,7 @@ namespace final_project
             }
         }
 
-        public static void RenderBoundaries()
+        public static void RenderBoundaries(char[,] map)
         {
             string[] boundaryLines = Token.boundary.Split('\n');
 
@@ -99,7 +142,7 @@ namespace final_project
             }
         }
 
-        public static void GeneratePath(int currentX, int currentY, HashSet<(int, int)>? visited = null)
+        public static void GeneratePath(char[,] map, int currentX, int currentY, HashSet<(int, int)>? visited = null)
         {
             // Initialize the visited set if null
             visited ??= [];
@@ -117,7 +160,7 @@ namespace final_project
             // Mark current position as visited
             visited.Add((startX, startY));
 
-            RenderToken(startY, startX, Token.whitespace);
+            RenderToken(map, startY, startX, Token.whitespace);
 
             var random = new Random();
             var directionsList = new List<(int, int)>(directions);
@@ -131,38 +174,38 @@ namespace final_project
                 int midY = startY + dy;
 
                 if (newX >= 0 && newY >= 0 && newX < width && newY < height && !visited.Contains((newX, newY)) &&
-                    !(Check(newY, newX, Token.topBottomWall) || Check(newY, newX, Token.leftRightWall) || IsDoor(newY, newX)))
+                    !(Check(map, newY, newX, Token.topBottomWall) || Check(map, newY, newX, Token.leftRightWall) || IsDoor(map, newY, newX)))
                 {
                     // Render the path between the current and new cell
-                    RenderToken(midY, midX, Token.whitespace);
-                    RenderToken(newY, newX, Token.whitespace);
+                    RenderToken(map, midY, midX, Token.whitespace);
+                    RenderToken(map, newY, newX, Token.whitespace);
 
-                    GeneratePath(newX, newY, visited); // Recursively generate the maze
+                    GeneratePath(map, newX, newY, visited); // Recursively generate the maze
                 }
             }
         }
 
         // Ensure exits are accessible and place them at the four corners
-        public static void PlaceExits()
+        public static void PlaceExits(char[,] map)
         {
             // Place exits at the four corners
-            RenderToken(0, 7, Token.door1);
-            RenderToken(0, width - 14, Token.door2);
-            RenderToken(height - 7, 7, Token.door3);
-            RenderToken(height - 7, width - 14, Token.door4);
+            RenderToken(map, 0, 7, Token.door1);
+            RenderToken(map, 0, width - 14, Token.door2);
+            RenderToken(map, height - 7, 7, Token.door3);
+            RenderToken(map, height - 7, width - 14, Token.door4);
         }
 
         // Check what door is it
         public static int WhatDoor(int y, int x)
         {
-            if (Check(y, x, Token.door1)) return 1;
-            else if (Check(y, x, Token.door2)) return 2;
-            else if (Check(y, x, Token.door3)) return 3;
-            else if (Check(y, x, Token.door4)) return 4;
+            if (Check(currentMap, y, x, Token.door1)) return 1;
+            else if (Check(currentMap, y, x, Token.door2)) return 2;
+            else if (Check(currentMap, y, x, Token.door3)) return 3;
+            else if (Check(currentMap, y, x, Token.door4)) return 4;
             else return 0;
         }
 
-        private static void RenderToken(int renderY, int renderX, string token)
+        private static void RenderToken(char[,] map, int renderY, int renderX, string token)
         {
             string[] playerLines = token.Split('\n');
 
@@ -188,24 +231,24 @@ namespace final_project
         {
             string[] playerLines = Token.player.Split('\n');
 
-            RenderToken(Game.playerY, Game.playerX, Token.player);
+            RenderToken(currentMap, Game.playerY, Game.playerX, Token.player);
 
-            if (Check(Game.oldPlayerY, Game.oldPlayerX, Token.player) && (!(Game.oldPlayerX == Game.playerX && Game.oldPlayerY == Game.playerY)))
+            if (Check(currentMap, Game.oldPlayerY, Game.oldPlayerX, Token.player) && (!(Game.oldPlayerX == Game.playerX && Game.oldPlayerY == Game.playerY)))
             {
                 // Remove old player on old posistion
                 for (int i = 0; i < playerLines.Length; i++)
                 {
                     int oldPlayerY = Game.oldPlayerY + i;
-                    if (oldPlayerY < map.GetLength(0))
+                    if (oldPlayerY < currentMap.GetLength(0))
                     {
                         for (int j = 0; j < playerLines[i].Length; j++)
                         {
                             int oldPlayerX = Game.oldPlayerX + j;
-                            if (oldPlayerX < map.GetLength(1))
+                            if (oldPlayerX < currentMap.GetLength(1))
                             {
-                                map[oldPlayerY, oldPlayerX] = ' ';
+                                currentMap[oldPlayerY, oldPlayerX] = ' ';
                                 Console.SetCursorPosition(oldPlayerX, oldPlayerY);
-                                Console.Write(map[oldPlayerY, oldPlayerX]);
+                                Console.Write(currentMap[oldPlayerY, oldPlayerX]);
                             }
                         }
                     }
@@ -215,8 +258,8 @@ namespace final_project
             // Draw tokens.
             int adjustedY = y / blockSize * blockSize;
             int adjustedX = x / blockSize * blockSize;
-            if (Check(adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary, null);
-            else if (Check(adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player, null);
+            if (Check(currentMap, adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary, null);
+            else if (Check(currentMap, adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player, null);
             else DrawToken(y, x, ConsoleColor.White, null, null);
         }
 
@@ -272,7 +315,7 @@ namespace final_project
         // Generate initial Map on console.
         public static void DrawMap()
         {
-            RenderToken(Game.playerY, Game.playerX, Token.player);
+            RenderToken(currentMap, Game.playerY, Game.playerX, Token.player);
             Console.Clear();
             for (int y = 0; y < height; y++)
             {
@@ -284,33 +327,33 @@ namespace final_project
                     int adjustedY = y / blockSize * blockSize;
                     int adjustedX = x / blockSize * blockSize;
 
-                    if (Check(adjustedY, adjustedX, Token.boundary))
+                    if (Check(currentMap, adjustedY, adjustedX, Token.boundary))
                     {
                         Console.ForegroundColor = ConsoleColor.Gray; // Boundary color
-                        Console.Write(map[y, x]);
+                        Console.Write(currentMap[y, x]);
                     }
-                    else if (Check(adjustedY, adjustedX, Token.player))
+                    else if (Check(currentMap, adjustedY, adjustedX, Token.player))
                     {
                         Console.ForegroundColor = ConsoleColor.Green; // Player color
-                        Console.Write(map[y, x]);
+                        Console.Write(currentMap[y, x]);
                     }
-                    else if (IsDoor(adjustedY, adjustedX))
+                    else if (IsDoor(currentMap, adjustedY, adjustedX))
                     {
                         Console.ForegroundColor = ConsoleColor.Green; // Teleportation color
-                        Console.Write(map[y, x]);
+                        Console.Write(currentMap[y, x]);
                     }
                     else
                     {
                         Console.ResetColor(); // Default color for other spaces
-                        Console.Write(map[y, x]);
+                        Console.Write(currentMap[y, x]);
                     }
                 }
             }
         }
 
-        public static bool IsDoor(int y, int x)
+        public static bool IsDoor(char[,] map, int y, int x)
         {
-            return (Check(y, x, Token.door1) || Check(y, x, Token.door2) || Check(y, x, Token.door3) || Check(y, x, Token.door4));
+            return (Check(map, y, x, Token.door1) || Check(map, y, x, Token.door2) || Check(map, y, x, Token.door3) || Check(map, y, x, Token.door4));
         }
 
         // Display current player status.
