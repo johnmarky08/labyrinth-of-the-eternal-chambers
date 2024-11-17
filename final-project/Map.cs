@@ -44,6 +44,7 @@ namespace final_project
             return true;
         }
 
+        // Create and initialize all maps
         public static void CreateMaps()
         {
             for (int i = 0; i < (int)Configurations.PATTERN_LENGTH; i++)
@@ -53,7 +54,7 @@ namespace final_project
             {
                 InitializeMap(map);
                 RenderBoundaries(map);
-                PlaceExits(map);
+                PlaceDoors(map);
                 GeneratePath(map, Game.defaultPlayerX, Game.defaultPlayerY);
             }
         }
@@ -186,7 +187,7 @@ namespace final_project
         }
 
         // Ensure exits are accessible and place them at the four corners
-        public static void PlaceExits(char[,] map)
+        public static void PlaceDoors(char[,] map)
         {
             // Place exits at the four corners
             RenderToken(map, 0, 7, Token.door1);
@@ -264,7 +265,7 @@ namespace final_project
         }
 
         // Token drawer (ASCII Art Supported)
-        private static void DrawToken(int y, int x, ConsoleColor color, string? chosenToken, bool? isScore)
+        public static void DrawToken(int y, int x, ConsoleColor color, string? chosenToken, bool? isScore)
         {
             Console.ForegroundColor = color;
 
@@ -329,7 +330,7 @@ namespace final_project
 
                     if (Check(currentMap, adjustedY, adjustedX, Token.boundary))
                     {
-                        Console.ForegroundColor = ConsoleColor.Gray; // Boundary color
+                        Console.ResetColor(); // Boundary color
                         Console.Write(currentMap[y, x]);
                     }
                     else if (Check(currentMap, adjustedY, adjustedX, Token.player))
@@ -344,7 +345,7 @@ namespace final_project
                     }
                     else
                     {
-                        Console.ResetColor(); // Default color for other spaces
+                        Console.ForegroundColor = ConsoleColor.DarkGray; // Default color for other spaces
                         Console.Write(currentMap[y, x]);
                     }
                 }
@@ -359,32 +360,24 @@ namespace final_project
         // Display current player status.
         public static void DrawScore()
         {
-            const string roomEntered = "  ____                             _____       _                    _      \r\n |  _ \\ ___   ___  _ __ ___  ___  | ____|_ __ | |_ ___ _ __ ___  __| |  _  \r\n | |_) / _ \\ / _ \\| '_ ` _ \\/ __| |  _| | '_ \\| __/ _ | '__/ _ \\/ _` | (_) \r\n |  _ | (_) | (_) | | | | | \\__ \\ | |___| | | | ||  __| | |  __| (_| |  _  \r\n |_| \\_\\___/ \\___/|_| |_| |_|___/ |_____|_| |_|\\__\\___|_|  \\___|\\__,_| (_) \r\n                                                                           ";
-            const string roomNumber = "  ____                          \r\n |  _ \\ ___   ___  _ __ ___  _  \r\n | |_) / _ \\ / _ \\| '_ ` _ \\(_) \r\n |  _ | (_) | (_) | | | | | |_  \r\n |_| \\_\\___/ \\___/|_| |_| |_(_) \r\n                                ";
+            ConsoleColor roomNumberColor = Game.roomNumber switch
+            {
+                ((int)Configurations.PATTERN_LENGTH / 1) => ConsoleColor.Green,
+                > ((int)Configurations.PATTERN_LENGTH / 2) => ConsoleColor.Yellow,
+                <= ((int)Configurations.PATTERN_LENGTH / 2) => ConsoleColor.Red,
+            };
 
-            DrawToken(height + 1, 0, ConsoleColor.Yellow, roomEntered, null);
-            DrawToken(height + 1, 75, ConsoleColor.Yellow, NumberToken(Game.roomsEntered), true);
-            DrawToken(height + 1, width - 45, ConsoleColor.Red, roomNumber, null);
-            DrawToken(height + 1, width - 13, ConsoleColor.Red, NumberToken(Game.roomNumber), true);
-        }
+            ConsoleColor wrongDoorsColor = Game.wrongDoors switch
+            {
+                <= 5 => ConsoleColor.Green,
+                <= 8 => ConsoleColor.Yellow,
+                _ => ConsoleColor.Red,
+            };
 
-        // Number to ASCII Art Number.
-        private static string NumberToken(int number)
-        {
-            string numberToken = Convert.ToString(number);
-
-            numberToken = numberToken.Replace("0", "   ___    / _ \\  | | | | | |_| |  \\___/         ");
-            numberToken = numberToken.Replace("1", "   __     /  |    |  |    |  |    |__|          ");
-            numberToken = numberToken.Replace("2", "  ____   |___ \\    __) |  / __/  |_____|        ");
-            numberToken = numberToken.Replace("3", "  _____  |___ /    |_ \\   ___) | |____/         ");
-            numberToken = numberToken.Replace("4", " _  _   | || |  | || |_ |__   _|   |_|          ");
-            numberToken = numberToken.Replace("5", "  ____   | ___|  |___ \\   ___) | |____/         ");
-            numberToken = numberToken.Replace("6", "   __     / /_   | '_ \\  | (_) |  \\___/         ");
-            numberToken = numberToken.Replace("7", "  _____  |___  |    / /    / /    /_/           ");
-            numberToken = numberToken.Replace("8", "   ___    ( _ )   / _ \\  | (_) |  \\___/         ");
-            numberToken = numberToken.Replace("9", "   ___    / _ \\  | (_) |  \\__, |    /_/         ");
-
-            return numberToken;
+            DrawToken(height + 1, 0, wrongDoorsColor, Token.wrongDoors1, null);
+            DrawToken(height + 1, 66, wrongDoorsColor, Token.ConvertNumber(Game.wrongDoors), true);
+            DrawToken(height + 1, width - 45, roomNumberColor, Token.roomNumber, null);
+            DrawToken(height + 1, width - 13, roomNumberColor, Token.ConvertNumber(Game.roomNumber), true);
         }
     }
 }
