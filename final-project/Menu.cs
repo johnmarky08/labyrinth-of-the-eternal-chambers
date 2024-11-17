@@ -158,9 +158,8 @@ namespace final_project
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.F4);
         }
 
-        public static void Won()
+        public static void GameOver()
         {
-            // Game Over
             Console.Clear();
             Thread.Sleep(50);
 
@@ -173,10 +172,13 @@ namespace final_project
             Thread.Sleep(100);
 
             // First end message.
-            Console.SetCursorPosition(0, 5);
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(Token.endMessage1);
-            Console.ReadKey(true);
+            if (!Game.gameOver && Game.won)
+            {
+                Console.SetCursorPosition(0, 5);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(Token.endMessage1);
+                Console.ReadKey(true);
+            }
 
             // Second end message.
             directExit = true;
@@ -191,42 +193,45 @@ namespace final_project
 
             while (!exitFlag)
             {
-                string endMessage = Token.endMessage2;
+                string endMessage = Game.gameOver ? Token.gameOver : Token.endMessage2;
 
-                string score = Token.wrongDoors2;
-                string[] scoreLines = score.Split('\n');
-                string number = Token.ConvertNumber(Game.wrongDoors);
-
-                List<string> numberLines = Enumerable.Range(0, (int)Math.Ceiling(number.Length / 8.0))
-                    .Select(i => number.Substring(i * 8, Math.Min(8, number.Length - i * 8)))
-                    .ToList();
-
-                int totalNumberLines = numberLines.Count;
-                int totalScoreLines = scoreLines.Length;
-
-                List<string> mergedLines = [];
-
-                for (int i = 0; i < totalScoreLines; i++)
+                if (!Game.gameOver && Game.won)
                 {
-                    string mergedLine = scoreLines[i];
+                    string score = Token.wrongDoors2;
+                    string[] scoreLines = score.Split('\n');
+                    string number = Token.ConvertNumber(Game.wrongDoors);
 
-                    for (int j = 0; j < totalNumberLines; j++)
+                    List<string> numberLines = Enumerable.Range(0, (int)Math.Ceiling(number.Length / 8.0))
+                        .Select(i => number.Substring(i * 8, Math.Min(8, number.Length - i * 8)))
+                        .ToList();
+
+                    int totalNumberLines = numberLines.Count;
+                    int totalScoreLines = scoreLines.Length;
+
+                    List<string> mergedLines = [];
+
+                    for (int i = 0; i < totalScoreLines; i++)
                     {
-                        if (i + j * 6 < totalNumberLines)
-                        {
-                            mergedLine += numberLines[i + j * 6];
-                        }
-                    }
-                    mergedLines.Add(mergedLine);
-                }
+                        string mergedLine = scoreLines[i];
 
-                endMessage += string.Join('\n', mergedLines);
+                        for (int j = 0; j < totalNumberLines; j++)
+                        {
+                            if (i + j * 6 < totalNumberLines)
+                            {
+                                mergedLine += numberLines[i + j * 6];
+                            }
+                        }
+                        mergedLines.Add(mergedLine);
+                    }
+
+                    endMessage += string.Join('\n', mergedLines);
+                }
 
                 string playMessage = Game.wrongDoors switch
                 {
-                    <= 5 => Token.genius,
-                    <= 8 => Token.smart,
-                    <= 10 => Token.good,
+                    < 5 => Token.genius,
+                    < 8 => Token.smart,
+                    < 10 => Token.good,
                     _ => Token.betterLuckNextTime,
                 };
 
@@ -258,7 +263,7 @@ namespace final_project
             Game.oldPlayerY = Game.playerY;
             Game.wrongDoors = 0;
             Game.roomNumber = 1;
-            Game.gameOver = false;
+            Game.won = false;
             Map.maps.Clear();
             Logic.currentPattern = "";
             Logic.pattern = "";

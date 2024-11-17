@@ -369,8 +369,8 @@ namespace final_project
 
             ConsoleColor wrongDoorsColor = Game.wrongDoors switch
             {
-                <= 5 => ConsoleColor.Green,
-                <= 8 => ConsoleColor.Yellow,
+                < 5 => ConsoleColor.Green,
+                < 8 => ConsoleColor.Yellow,
                 _ => ConsoleColor.Red,
             };
 

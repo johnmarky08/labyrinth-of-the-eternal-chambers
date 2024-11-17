@@ -12,6 +12,7 @@ namespace final_project
         public static int oldPlayerY = playerY;
         public static int wrongDoors = 0;
         public static int roomNumber = 1;
+        public static bool won = false;
         public static bool gameOver = false;
 
         // Main Game Methods
@@ -35,7 +36,7 @@ namespace final_project
 
         private static void StartGameLoop()
         {
-            while (!gameOver)
+            while (!won || !gameOver)
             {
                 if (Console.KeyAvailable)
                 {
@@ -51,7 +52,7 @@ namespace final_project
                 Map.DrawScore();
             }
 
-            Menu.Won();
+            Menu.GameOver();
         }
 
         // Main controls method
@@ -93,7 +94,7 @@ namespace final_project
 
                     if (Logic.currentPattern.Equals(Logic.pattern))
                     {
-                        gameOver = true;
+                        won = true;
                         return true;
                     }
 
@@ -101,7 +102,11 @@ namespace final_project
                 }
                 else
                 {
-                    wrongDoors++;
+                   if (++wrongDoors >= 10)
+                    {
+                        gameOver = true;
+                        return true;
+                    }
                     Logic.currentPattern = "";
                     Map.ChangeMap(roomNumber = 1, playerY, playerX);
                 }
