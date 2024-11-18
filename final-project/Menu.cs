@@ -164,7 +164,7 @@ namespace final_project
             Thread.Sleep(50);
 
             // Enlarge buffersize.
-            var simulator = new InputSimulator();
+            InputSimulator simulator = new();
             for (int i = 0; i < 5; i++)
                 simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
 

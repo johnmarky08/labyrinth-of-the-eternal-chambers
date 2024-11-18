@@ -9,7 +9,7 @@ namespace final_project
         {
             // Make the console full screen.
             Console.CursorVisible = false;
-            var simulator = new InputSimulator();
+            InputSimulator simulator = new();
             Thread.Sleep(500);
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.RETURN);
             Thread.Sleep(500);

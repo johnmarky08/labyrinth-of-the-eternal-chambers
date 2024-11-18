@@ -177,8 +177,8 @@ namespace final_project
 
             RenderToken(map, startY, startX, Token.whitespace);
 
-            var random = new Random();
-            var directionsList = new List<(int, int)>(directions);
+            Random random = new();
+            List<(int, int)> directionsList = new(directions);
             directionsList.Sort((a, b) => random.Next().CompareTo(random.Next()));
 
             foreach (var (dx, dy) in directionsList)

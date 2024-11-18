@@ -19,7 +19,7 @@ namespace final_project
         internal static void Execute()
         {
             // Minimize buffersize for ASCII art to fit on screen.
-            var simulator = new InputSimulator();
+            InputSimulator simulator = new();
             for (int i = 0; i < 6; i++)
                 simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);
 
@@ -40,7 +40,7 @@ namespace final_project
             {
                 if (Console.KeyAvailable)
                 {
-                    var key = Console.ReadKey(true).Key;
+                    ConsoleKey key = Console.ReadKey(true).Key;
 
                     if (key == ConsoleKey.Escape)
                         Menu.Exit(true);
