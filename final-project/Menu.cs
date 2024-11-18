@@ -177,7 +177,7 @@ namespace final_project
                 Console.SetCursorPosition(0, 5);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine(Token.endMessage1);
-                Console.ReadKey(true);
+                Thread.Sleep(7000); // Wait for 7 seconds before proceeding to next message
             }
 
             // Second end message.
@@ -301,7 +301,7 @@ namespace final_project
 
             bool isGuideOpen = true;
 
-            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.BackgroundColor = ConsoleColor.Gray;
             Map.DrawToken(startY, startX, ConsoleColor.Black, guideMenu);
 
             while (isGuideOpen)

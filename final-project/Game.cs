@@ -44,7 +44,7 @@ namespace final_project
 
                     if (key == ConsoleKey.Escape)
                         Menu.Exit(true);
-                    else if (key == ConsoleKey.Enter)
+                    else if (key == ConsoleKey.F1)
                         Menu.Guide();
 
                     if (MovePlayer(key)) break;
