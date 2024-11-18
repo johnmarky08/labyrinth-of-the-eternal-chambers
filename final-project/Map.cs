@@ -10,6 +10,8 @@ namespace final_project
         public static readonly int blockHeight = height / blockSize;
         public static readonly List<char[,]> maps = [];
         public static readonly Random random = new();
+        public static char[,] currentMap = { };
+        public static int currentMapNumber = 0;
         private static readonly (int dx, int dy)[] directions =
         {
             (0, -7), // Up
@@ -17,7 +19,17 @@ namespace final_project
             (0, 7),  // Down
             (-7, 0)  // Left
         };
-        public static char[,] currentMap = { };
+        private static readonly (int, int)[] shadowMaze =
+        {
+            (-7, 0),   // 1 block above
+            (7, 0),    // 1 block below
+            (0, -7),   // 1 block to the left
+            (0, 7),    // 1 block to the right
+            (-7, -7),  // Top-left diagonal
+            (-7, 7),   // Top-right diagonal
+            (7, -7),   // Bottom-left diagonal
+            (7, 7)     // Bottom-right diagonal
+        };
 
         // Check if map[y, x] is the same with the given representationToken.
         public static bool Check(char[,] map, int startY, int startX, string representationToken)
@@ -63,6 +75,7 @@ namespace final_project
         {
             char[,] oldMap = currentMap;
             currentMap = maps[mapNumber - 1];
+            currentMapNumber = mapNumber;
 
             if (!oldMap.Equals(currentMap))
             {
@@ -259,9 +272,38 @@ namespace final_project
             // Draw tokens.
             int adjustedY = y / blockSize * blockSize;
             int adjustedX = x / blockSize * blockSize;
-            if (Check(currentMap, adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary);
+            if (currentMapNumber == maps.Count)
+            {
+                int currentY = Game.playerY;
+                int currentX = Game.playerX;
+                int oldY = Game.oldPlayerY;
+                int oldX = Game.oldPlayerX;
+                List<(int, int)> shadows = [];
+                foreach (var (offsetY, offsetX) in shadowMaze)
+                {
+                    // Write boundaries that are near the player.
+                    int startX = currentX + offsetX;
+                    int startY = currentY + offsetY;
+                    shadows.Add((startY, startX));
+
+                    if (Check(currentMap, startY, startX, Token.boundary))
+                        DrawToken(startY, startX, ConsoleColor.White, Token.boundary);
+                }
+
+                foreach (var (offsetY, offsetX) in shadowMaze)
+                {
+                    // Remove boundaries that are far away from the player.
+                    int oldStartX = oldX + offsetX;
+                    int oldStartY = oldY + offsetY;
+
+                    if ((!shadows.Contains((oldStartY, oldStartX)) && Check(currentMap, oldStartY, oldStartX, Token.boundary)))
+                        DrawToken(oldStartY, oldStartX, ConsoleColor.White, Token.whitespace);
+                }
+            }
+
+            if (Check(currentMap, adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.White, Token.boundary);
             else if (Check(currentMap, adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player);
-            else DrawToken(y, x, ConsoleColor.White);
+            else DrawToken(y, x, ConsoleColor.DarkGray);
         }
 
         // Token drawer (ASCII Art Supported)
@@ -331,7 +373,15 @@ namespace final_project
                     if (Check(currentMap, adjustedY, adjustedX, Token.boundary))
                     {
                         Console.ResetColor(); // Boundary color
-                        Console.Write(currentMap[y, x]);
+
+                        if (currentMapNumber == maps.Count)
+                        {
+                            int currentY = Game.playerY - adjustedY;
+                            int currentX = Game.playerX - adjustedX;
+                            if (shadowMaze.Contains((currentY, currentX))) Console.Write(currentMap[y, x]);
+                        }
+                        else
+                            Console.Write(currentMap[y, x]);
                     }
                     else if (Check(currentMap, adjustedY, adjustedX, Token.player))
                     {
@@ -362,15 +412,15 @@ namespace final_project
         {
             ConsoleColor roomNumberColor = Game.roomNumber switch
             {
-                ((int)Configurations.PATTERN_LENGTH / 1) => ConsoleColor.Green,
+                (int)Configurations.PATTERN_LENGTH => ConsoleColor.Green,
                 > ((int)Configurations.PATTERN_LENGTH / 2) => ConsoleColor.Yellow,
                 <= ((int)Configurations.PATTERN_LENGTH / 2) => ConsoleColor.Red,
             };
 
-            ConsoleColor wrongDoorsColor = Game.wrongDoors switch
+            ConsoleColor wrongDoorsColor = Convert.ToDouble(Game.wrongDoors) switch
             {
-                < 5 => ConsoleColor.Green,
-                < 8 => ConsoleColor.Yellow,
+                <= ((int)Configurations.MAX_GUESS * 0.5) => ConsoleColor.Green,
+                <= ((int)Configurations.MAX_GUESS * 0.75) => ConsoleColor.Yellow,
                 _ => ConsoleColor.Red,
             };
 

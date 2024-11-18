@@ -104,7 +104,7 @@ namespace final_project
                 }
                 else
                 {
-                   if (++wrongDoors >= 10)
+                    if (++wrongDoors >= (int)Configurations.MAX_GUESS)
                     {
                         gameOver = true;
                         return true;

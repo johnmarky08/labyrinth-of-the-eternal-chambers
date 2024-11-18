@@ -205,11 +205,11 @@ namespace final_project
                     endMessage += string.Join('\n', mergedLines);
                 }
 
-                string playMessage = Game.wrongDoors switch
+                string playMessage = Convert.ToDouble(Game.wrongDoors) switch
                 {
-                    < 5 => Token.genius,
-                    < 8 => Token.smart,
-                    < 10 => Token.good,
+                    < ((int)Configurations.MAX_GUESS * 0.25) => Token.genius,
+                    < ((int)Configurations.MAX_GUESS * 0.5) => Token.smart,
+                    < ((int)Configurations.MAX_GUESS * 0.75) => Token.good,
                     _ => Token.betterLuckNextTime,
                 };
 
