@@ -64,7 +64,7 @@ namespace final_project
 
             foreach (char[,] map in maps)
             {
-                InitializeMap(map);
+                RenderWalls(map);
                 RenderBoundaries(map);
                 PlaceDoors(map);
                 GeneratePath(map, Game.defaultPlayerX, Game.defaultPlayerY);
@@ -80,6 +80,7 @@ namespace final_project
             if (!oldMap.Equals(currentMap))
             {
                 string[] playerLines = Token.player.Split('\n');
+
                 // Remove old player on old map
                 for (int i = 0; i < playerLines.Length; i++)
                 {
@@ -101,7 +102,7 @@ namespace final_project
         }
 
         // Generate Walls.
-        public static void InitializeMap(char[,] map)
+        public static void RenderWalls(char[,] map)
         {
             string[] topBottomWallLines = Token.topBottomWall.Split('\n');
             string[] leftRightWallLines = Token.leftRightWall.Split('\n');
