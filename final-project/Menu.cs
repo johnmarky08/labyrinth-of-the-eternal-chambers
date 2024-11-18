@@ -15,7 +15,7 @@ namespace final_project
 
             // Start game if presses space.
             Thread.Sleep(100);
-            Thread keyListenerThread = new(KeyListener);
+            Thread keyListenerThread = new(ExitMenuKey);
             keyListenerThread.Start();
             bool nextText = true;
 
@@ -37,7 +37,7 @@ namespace final_project
             }
         }
 
-        private static void KeyListener()
+        private static void ExitMenuKey()
         {
             while (true)
             {
@@ -58,7 +58,7 @@ namespace final_project
                     else if (key == ConsoleKey.Escape)
                     {
                         exitFlag = true;
-                        if (!directExit) Exit(Console.BufferHeight, Console.BufferWidth); // Exit program
+                        if (!directExit) Exit(); // Exit program
                         else End();
                         return;
                     }
@@ -86,14 +86,14 @@ namespace final_project
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(currentTitle);
         }
-        public static void Exit(int currentY, int currentX, bool isInGame = false)
+        public static void Exit(bool isInGame = false)
         {
             string exitMenu = Token.exitMenu;
-            int startY = (currentY - 17) / 2;
-            int startX = (currentX - 109) / 2;
+            int startY = (Console.BufferHeight - 17) / 2;
+            int startX = (Console.BufferWidth - 109) / 2;
 
             Console.BackgroundColor = ConsoleColor.DarkRed;
-            Map.DrawToken(startY, startX, ConsoleColor.White, exitMenu, null);
+            Map.DrawToken(startY, startX, ConsoleColor.White, exitMenu);
 
             bool exit = false;
             while (!exit)
@@ -129,7 +129,7 @@ namespace final_project
 
                                         if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
                                         {
-                                            Console.ForegroundColor = ConsoleColor.Gray; // Boundary color
+                                            Console.ResetColor(); // Boundary color
                                             Console.Write(Map.currentMap[y, x]);
                                         }
                                         else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.player))
@@ -139,7 +139,7 @@ namespace final_project
                                         }
                                         else
                                         {
-                                            Console.ResetColor(); // Default color for other spaces
+                                            Console.ForegroundColor = ConsoleColor.DarkGray; // Default color for other spaces
                                             Console.Write(Map.currentMap[y, x]);
                                         }
                                     }
@@ -182,7 +182,7 @@ namespace final_project
 
             // Second end message.
             directExit = true;
-            Thread keyListenerThread = new(KeyListener);
+            Thread keyListenerThread = new(ExitMenuKey);
             keyListenerThread.Start();
             bool nextText = true;
             exitFlag = false;
@@ -199,30 +199,8 @@ namespace final_project
                 {
                     string score = Token.wrongDoors2;
                     string[] scoreLines = score.Split('\n');
-                    string number = Token.ConvertNumber(Game.wrongDoors);
-
-                    List<string> numberLines = Enumerable.Range(0, (int)Math.Ceiling(number.Length / 8.0))
-                        .Select(i => number.Substring(i * 8, Math.Min(8, number.Length - i * 8)))
-                        .ToList();
-
-                    int totalNumberLines = numberLines.Count;
-                    int totalScoreLines = scoreLines.Length;
-
-                    List<string> mergedLines = [];
-
-                    for (int i = 0; i < totalScoreLines; i++)
-                    {
-                        string mergedLine = scoreLines[i];
-
-                        for (int j = 0; j < totalNumberLines; j++)
-                        {
-                            if (i + j * 6 < totalNumberLines)
-                            {
-                                mergedLine += numberLines[i + j * 6];
-                            }
-                        }
-                        mergedLines.Add(mergedLine);
-                    }
+                    string number = Token.ConvertNumber(Game.wrongDoors.ToString());
+                    List<string> mergedLines = MergedNumberToken(scoreLines, number);
 
                     endMessage += string.Join('\n', mergedLines);
                 }
@@ -251,6 +229,38 @@ namespace final_project
             }
         }
 
+        private static List<string> MergedNumberToken(string[] messageLines, string token, bool additionalSpace = false)
+        {
+            List<string> numberLines = Enumerable.Range(0, (int)Math.Ceiling(token.Length / 8.0))
+                                    .Select(i => token.Substring(i * 8, Math.Min(8, token.Length - i * 8)))
+                                    .ToList();
+
+            int totalNumberLines = numberLines.Count;
+            int totalScoreLines = messageLines.Length;
+
+            List<string> mergedLines = [];
+
+            for (int i = 0; i < totalScoreLines; i++)
+            {
+                string mergedLine = messageLines[i];
+
+                for (int j = 0; j < totalNumberLines; j++)
+                {
+                    if (i + j * 6 < totalNumberLines)
+                    {
+                        mergedLine += numberLines[i + j * 6];
+                    }
+                }
+
+                if (additionalSpace)
+                    mergedLine += "   ";
+
+                mergedLines.Add(mergedLine);
+            }
+
+            return mergedLines;
+        }
+
         private static void Restart()
         {
             for (int i = 0; i < 2; i++)
@@ -270,6 +280,71 @@ namespace final_project
 
             Console.Clear();
             Game.Execute();
+        }
+
+        public static void Guide()
+        {
+            int patternLength = (int)Configurations.PATTERN_LENGTH;
+            string guideMenu = Token.guideMessage1;
+            guideMenu += string.Join('\n', MergedNumberToken(Token.guideMessage2.Split('\n'),
+                                                             Token.ConvertNumber((patternLength < 10)
+                                                                ? (patternLength.ToString() + '%')
+                                                                : patternLength.ToString()),
+                                                             true));
+            guideMenu += Token.guideMessage3;
+            guideMenu += Token.guideControls;
+            guideMenu += Token.closeMenu;
+
+            int menuHeight = 67, menuWidth = 147;
+            int startY = (Console.BufferHeight - menuHeight) / 2;
+            int startX = (Console.BufferWidth - menuWidth) / 2;
+
+            bool isGuideOpen = true;
+
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Map.DrawToken(startY, startX, ConsoleColor.Black, guideMenu);
+
+            while (isGuideOpen)
+            {
+                switch (Console.ReadKey(true).Key)
+                {
+                    case ConsoleKey.Escape:
+                        {
+                            Console.BackgroundColor = ConsoleColor.Black;
+                            for (int y = startY; y < (startY + menuHeight); y++)
+                            {
+                                for (int x = startX; x < (startX + menuWidth); x++)
+                                {
+                                    Console.SetCursorPosition(x, y);
+
+                                    // Adjust coordinates to match the 7x7 grid
+                                    int adjustedY = y / Map.blockSize * Map.blockSize;
+                                    int adjustedX = x / Map.blockSize * Map.blockSize;
+
+                                    if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
+                                    {
+                                        Console.ResetColor(); // Boundary color
+                                        Console.Write(Map.currentMap[y, x]);
+                                    }
+                                    else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.player))
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.Green; // Player color
+                                        Console.Write(Map.currentMap[y, x]);
+                                    }
+                                    else
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.DarkGray; // Default color for other spaces
+                                        Console.Write(Map.currentMap[y, x]);
+                                    }
+                                }
+                            }
+
+                            Map.DrawGuides();
+                            isGuideOpen = false;
+                            break;
+                        }
+                }
+            }
         }
     }
 }

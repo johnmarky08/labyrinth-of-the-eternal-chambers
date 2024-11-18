@@ -206,7 +206,7 @@ namespace final_project
             else return 0;
         }
 
-        private static void RenderToken(char[,] map, int renderY, int renderX, string token)
+        public static void RenderToken(char[,] map, int renderY, int renderX, string token)
         {
             string[] playerLines = token.Split('\n');
 
@@ -259,17 +259,17 @@ namespace final_project
             // Draw tokens.
             int adjustedY = y / blockSize * blockSize;
             int adjustedX = x / blockSize * blockSize;
-            if (Check(currentMap, adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary, null);
-            else if (Check(currentMap, adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player, null);
-            else DrawToken(y, x, ConsoleColor.White, null, null);
+            if (Check(currentMap, adjustedY, adjustedX, Token.boundary)) DrawToken(y, x, ConsoleColor.Gray, Token.boundary);
+            else if (Check(currentMap, adjustedY, adjustedX, Token.player)) DrawToken(y, x, ConsoleColor.Green, Token.player);
+            else DrawToken(y, x, ConsoleColor.White);
         }
 
         // Token drawer (ASCII Art Supported)
-        public static void DrawToken(int y, int x, ConsoleColor color, string? chosenToken, bool? isScore)
+        public static void DrawToken(int y, int x, ConsoleColor color, string chosenToken = "", bool isScore = false)
         {
             Console.ForegroundColor = color;
 
-            if (chosenToken == null)
+            if (chosenToken == "")
             {
                 for (int i = 0; i < blockSize; i++)
                 {
@@ -358,7 +358,7 @@ namespace final_project
         }
 
         // Display current player status.
-        public static void DrawScore()
+        public static void DrawGuides()
         {
             ConsoleColor roomNumberColor = Game.roomNumber switch
             {
@@ -374,10 +374,13 @@ namespace final_project
                 _ => ConsoleColor.Red,
             };
 
-            DrawToken(height + 1, 0, wrongDoorsColor, Token.wrongDoors1, null);
-            DrawToken(height + 1, 66, wrongDoorsColor, Token.ConvertNumber(Game.wrongDoors), true);
-            DrawToken(height + 1, width - 45, roomNumberColor, Token.roomNumber, null);
-            DrawToken(height + 1, width - 13, roomNumberColor, Token.ConvertNumber(Game.roomNumber), true);
+            DrawToken(height + 1, 0, wrongDoorsColor, Token.wrongDoors1);
+            DrawToken(height + 1, 66, wrongDoorsColor, Token.ConvertNumber(Game.wrongDoors.ToString()), true);
+            DrawToken(height + 1, width - 45, roomNumberColor, Token.roomNumber);
+            DrawToken(height + 1, width - 13, roomNumberColor, Token.ConvertNumber(Game.roomNumber.ToString()), true);
+
+            // Place guide token
+            DrawToken(5, width + 10, ConsoleColor.DarkGreen, Token.guide);
         }
     }
 }

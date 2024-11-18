@@ -43,13 +43,15 @@ namespace final_project
                     var key = Console.ReadKey(true).Key;
 
                     if (key == ConsoleKey.Escape)
-                        Menu.Exit(Console.BufferHeight, Console.BufferWidth, true);
+                        Menu.Exit(true);
+                    else if (key == ConsoleKey.Enter)
+                        Menu.Guide();
 
                     if (MovePlayer(key)) break;
                     Map.SpecificDraw(playerY, playerX); // Update the map only if the player has moved to a valid position
                 }
 
-                Map.DrawScore();
+                Map.DrawGuides();
             }
 
             Menu.GameOver();
