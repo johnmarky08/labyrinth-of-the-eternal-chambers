@@ -417,10 +417,10 @@ namespace final_project
                 <= ((int)Configurations.PATTERN_LENGTH / 2) => ConsoleColor.Red,
             };
 
-            ConsoleColor wrongDoorsColor = Convert.ToDouble(Game.wrongDoors) switch
+            ConsoleColor wrongDoorsColor = Game.wrongDoors switch
             {
-                <= ((int)Configurations.MAX_GUESS * 0.5) => ConsoleColor.Green,
-                <= ((int)Configurations.MAX_GUESS * 0.75) => ConsoleColor.Yellow,
+                <= ((int)Configurations.MAX_GUESS / 2) => ConsoleColor.Green,
+                < ((int)Configurations.MAX_GUESS - 1) => ConsoleColor.Yellow,
                 _ => ConsoleColor.Red,
             };
 
