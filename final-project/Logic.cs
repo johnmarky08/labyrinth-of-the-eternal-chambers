@@ -6,14 +6,14 @@
         public static string pattern = "";
         public static bool CheckPattern(int nextRoom)
         {
-            if (nextRoom == GetNextNumber()) return true;
+            if (nextRoom == GetNextNumber(currentPattern)) return true;
 
             return false;
         }
 
-        private static int GetNextNumber()
+        private static int GetNextNumber(string currentPattern)
         {
-            if (currentPattern == "")
+            if (currentPattern == null)
                 return pattern[0];
             // Check if the input matches the start of the pattern
             else if (pattern.StartsWith(currentPattern))
