@@ -6,20 +6,20 @@
         public static string pattern = "";
         public static bool CheckPattern(int nextRoom)
         {
-            if (nextRoom == GetNextNumber(currentPattern)) return true;
+            if (nextRoom == GetNextNumber()) return true;
 
             return false;
         }
 
-        private static int GetNextNumber(string input)
+        private static int GetNextNumber()
         {
-            if (input == null)
+            if (currentPattern == "")
                 return pattern[0];
             // Check if the input matches the start of the pattern
-            else if (pattern.StartsWith(input))
+            else if (pattern.StartsWith(currentPattern))
             {
                 // Return the next character in the pattern as an integer
-                return int.Parse(pattern[input.Length].ToString());
+                return int.Parse(pattern[currentPattern.Length].ToString());
             }
             // Return 0 if the input does not match the start of the pattern
             return 0;
