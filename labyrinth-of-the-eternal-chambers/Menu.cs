@@ -70,7 +70,7 @@ namespace labyrinth_of_the_eternal_chambers
                 simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
 
             Console.Clear();
-            Game.Execute();
+            Error.Handler(Game.Execute);
         }
 
         // Moving text menu animation.

@@ -18,7 +18,8 @@ namespace labyrinth_of_the_eternal_chambers
 
             for (int i = 0; i < 3; i++)
                 simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);
-            Menu.Start();
+
+            Error.Handler(Menu.Start);
         }
     }
 }

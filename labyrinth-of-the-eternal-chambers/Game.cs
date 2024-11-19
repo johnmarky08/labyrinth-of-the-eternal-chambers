@@ -31,7 +31,7 @@ namespace labyrinth_of_the_eternal_chambers
             Logic.GeneratePattern();
 
             // Start the game.
-            StartGameLoop();
+            Error.Handler(StartGameLoop);
         }
 
         private static void StartGameLoop()
