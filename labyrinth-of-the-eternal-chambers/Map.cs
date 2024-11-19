@@ -1,5 +1,5 @@
 ﻿
-namespace final_project
+namespace labyrinth_of_the_eternal_chambers
 {
     internal class Map
     {

@@ -1,4 +1,4 @@
-﻿namespace final_project
+﻿namespace labyrinth_of_the_eternal_chambers
 {
     // Main Settings
     internal enum Configurations
