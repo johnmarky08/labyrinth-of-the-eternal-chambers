@@ -177,7 +177,7 @@ namespace labyrinth_of_the_eternal_chambers
                 Console.SetCursorPosition(0, 5);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine(Token.endMessage1);
-                Thread.Sleep(10_000); // Wait for 7 seconds before proceeding to next message
+                Thread.Sleep(10_000); // Wait for 10 seconds before proceeding to next message
             }
 
             // Second end message.
@@ -274,6 +274,7 @@ namespace labyrinth_of_the_eternal_chambers
             Game.wrongDoors = 0;
             Game.roomNumber = 1;
             Game.won = false;
+            Game.gameOver = false;
             Map.maps.Clear();
             Logic.currentPattern = "";
             Logic.pattern = "";
