@@ -30,7 +30,14 @@
             (7, 7)     // Bottom-right diagonal
         };
 
-        // Check if map[y, x] is the same with the given representationToken.
+        /// <summary>
+        /// Check whether the given startX and startY match the representationToken in the current map.
+        /// </summary>
+        /// <param name="map">The current map.</param>
+        /// <param name="startY">The starting Y of the token.</param>
+        /// <param name="startX">The starting X of the token.</param>
+        /// <param name="representationToken">The ASCII Art/Token you wish to know if it matches or not with the token associated within the given <paramref name="startY"/> and <paramref name="startX"/>.</param>
+        /// <returns>The boolean that represents whether it matches or not.</returns>
         public static bool Check(char[,] map, int startY, int startX, string representationToken)
         {
             string[] expectedRows = representationToken.Split('\n');
@@ -55,7 +62,9 @@
             return true;
         }
 
-        // Create and initialize all maps
+        /// <summary>
+        /// Create and initialize all maps. Generate its borders, boundaries, doors, and maze path.
+        /// </summary>
         public static void CreateMaps()
         {
             for (int i = 0; i < (int)Configurations.PATTERN_LENGTH; i++)
@@ -70,6 +79,12 @@
             }
         }
 
+        /// <summary>
+        /// Changes the current rendered map to a new map and sets it as the current map, then renders it on the console. And uses the parameters playerX and playerY to remove them from the previous map.
+        /// </summary>
+        /// <param name="mapNumber">The map mumber you want to change to.</param>
+        /// <param name="playerY">The old Y position of the player in the previous map.</param>
+        /// <param name="playerX">The old X position of the player in the previous map.</param>
         public static void ChangeMap(int mapNumber, int playerY, int playerX)
         {
             char[,] oldMap = currentMap;
@@ -100,7 +115,10 @@
             }
         }
 
-        // Generate Walls.
+        /// <summary>
+        /// To render the whole map and render the walls of it.
+        /// </summary>
+        /// <param name="map">Current map.</param>
         public static void RenderWalls(char[,] map)
         {
             string[] topBottomWallLines = Token.topBottomWall.Split('\n');
@@ -131,6 +149,10 @@
             }
         }
 
+        /// <summary>
+        /// To render the boundaries to the inside of the map.
+        /// </summary>
+        /// <param name="map">Current map.</param>
         public static void RenderBoundaries(char[,] map)
         {
             string[] boundaryLines = Token.boundary.Split('\n');
@@ -156,6 +178,13 @@
             }
         }
 
+        /// <summary>
+        /// A recursive method that randomly generates a maze-like pattern of white spaces and renders it on the map.
+        /// </summary>
+        /// <param name="map">Current map.</param>
+        /// <param name="currentX">Current position X.</param>
+        /// <param name="currentY">Current position Y.</param>
+        /// <param name="visited">Uses HashSet data type to ensure that it only visits that particular block once.</param>
         public static void GeneratePath(char[,] map, int currentX, int currentY, HashSet<(int, int)>? visited = null)
         {
             // Initialize the visited set if null
@@ -199,7 +228,10 @@
             }
         }
 
-        // Ensure exits are accessible and place them at the four corners
+        /// <summary>
+        /// Render all 4 doors to each corner of the map.
+        /// </summary>
+        /// <param name="map">Current map.</param>
         public static void PlaceDoors(char[,] map)
         {
             // Place exits at the four corners
@@ -209,7 +241,12 @@
             RenderToken(map, height - 7, width - 14, Token.door4);
         }
 
-        // Check what door is it
+        /// <summary>
+        /// A supporting method that returns the number of which door the player entered.
+        /// </summary>
+        /// <param name="y">Door position Y.</param>
+        /// <param name="x">Door position X.</param>
+        /// <returns>The door number.</returns>
         public static int WhatDoor(int y, int x)
         {
             if (Check(currentMap, y, x, Token.door1)) return 1;
@@ -219,6 +256,13 @@
             else return 0;
         }
 
+        /// <summary>
+        /// To render the given token to the exact x and y of it in the map.
+        /// </summary>
+        /// <param name="map">Current map.</param>
+        /// <param name="renderY">Y position where you want to render it.</param>
+        /// <param name="renderX">X position where you want to render it.</param>
+        /// <param name="token">The ASCII Art/Token you want to render.</param>
         public static void RenderToken(char[,] map, int renderY, int renderX, string token)
         {
             string[] playerLines = token.Split('\n');
@@ -241,6 +285,11 @@
             }
         }
 
+        /// <summary>
+        /// This method writes the given x and y of the map to the console.
+        /// </summary>
+        /// <param name="y">Position Y in the map and console.</param>
+        /// <param name="x">Position X in the map and console.</param>
         public static void SpecificDraw(int y, int x)
         {
             string[] playerLines = Token.player.Split('\n');
@@ -306,7 +355,14 @@
             else DrawToken(y, x, ConsoleColor.DarkGray);
         }
 
-        // Token drawer (ASCII Art Supported)
+        /// <summary>
+        /// Writes the given token or ASCII Art to the console with the given color, x, and y.
+        /// </summary>
+        /// <param name="y">Starting Y position.</param>
+        /// <param name="x">Starting X position.</param>
+        /// <param name="color">Font color.</param>
+        /// <param name="chosenToken">ASCII Art Token</param>
+        /// <param name="isScore">Boolean that represents if the given <paramref name="chosenToken"/> is a token or a score.</param>
         public static void DrawToken(int y, int x, ConsoleColor color, string chosenToken = "", bool isScore = false)
         {
             Console.ForegroundColor = color;
@@ -355,7 +411,9 @@
             }
         }
 
-        // Generate initial Map on console.
+        /// <summary>
+        /// Prints the whole map to the console.
+        /// </summary>
         public static void DrawMap()
         {
             RenderToken(currentMap, Game.playerY, Game.playerX, Token.player);
@@ -402,12 +460,21 @@
             }
         }
 
+        /// <summary>
+        /// Checks if the given x and y match the coordinates of a door.
+        /// </summary>
+        /// <param name="map">Current map.</param>
+        /// <param name="y">Starting position Y.</param>
+        /// <param name="x">Starting position X.</param>
+        /// <returns>Boolean that represents whether it is a door or not.</returns>
         public static bool IsDoor(char[,] map, int y, int x)
         {
             return (Check(map, y, x, Token.door1) || Check(map, y, x, Token.door2) || Check(map, y, x, Token.door3) || Check(map, y, x, Token.door4));
         }
 
-        // Display current player status.
+        /// <summary>
+        /// Prints the guides, current wrong doors, and current room number in the console.
+        /// </summary>
         public static void DrawGuides()
         {
             ConsoleColor roomNumberColor = Game.roomNumber switch

@@ -13,7 +13,9 @@
         public static bool won = false;
         public static bool gameOver = false;
 
-        // Main Game Methods
+        /// <summary>
+        /// Initialize and render all needed requirements to run the game and start the loop of the game.
+        /// </summary>
         internal static void Execute()
         {
             // Minimize fontsize for ASCII art to fit on screen.
@@ -30,6 +32,9 @@
             Error.Handler(StartGameLoop);
         }
 
+        /// <summary>
+        /// This is the main loop of the game that detects when the user moves, wants to quit, loses, or wins the game.
+        /// </summary>
         private static void StartGameLoop()
         {
             while (!won || !gameOver)
@@ -53,7 +58,11 @@
             Menu.GameOver();
         }
 
-        // Main controls method
+        /// <summary>
+        /// Move the player to its new position and return a boolean that corresponds to whether, when the user moves to the new position, they won or lost.
+        /// </summary>
+        /// <param name="key">The key that the user presses in the keyboard.</param>
+        /// <returns>The booelan that represents whether the user won, lost, or still playing.</returns>
         private static bool MovePlayer(ConsoleKey key)
         {
             int newX = playerX, newY = playerY;

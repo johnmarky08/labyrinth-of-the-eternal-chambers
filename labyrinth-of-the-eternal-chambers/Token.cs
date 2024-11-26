@@ -38,7 +38,11 @@
             wrongDoors2 = "\t\t\t\t\t    __        __                                   ____                                     \n\t\t\t\t\t    \\ \\      / /  _ __    ___    _ __     __ _    |  _ \\    ___     ___    _ __   ___   _   \n\t\t\t\t\t     \\ \\ /\\ / /  | '__|  / _ \\  | '_ \\   / _` |   | | | |  / _ \\   / _ \\  | '__| / __| (_)  \n\t\t\t\t\t      \\ V  V /   | |    | (_) | | | | | | (_| |   | |_| | | (_) | | (_) | | |    \\__ \\  _   \n\t\t\t\t\t       \\_/\\_/    |_|     \\___/  |_| |_|  \\__, |   |____/   \\___/   \\___/  |_|    |___/ (_)  \n\t\t\t\t\t                                         |___/                                              ";
 
 
-        // Number to ASCII Art Number.
+        /// <summary>
+        /// Converts an integer in the form of a string to an ASCII art string.
+        /// </summary>
+        /// <param name="numberToken">The number in type string.</param>
+        /// <returns>The ASCII Art equivalent of the number.</returns>
         public static string ConvertNumber(string numberToken)
         {
             numberToken = numberToken.Replace("%", "                                                ");

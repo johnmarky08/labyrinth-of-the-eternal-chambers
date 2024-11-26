@@ -2,6 +2,10 @@
 {
     internal class Error
     {
+        /// <summary>
+        /// To handle unexpected errors while playing.
+        /// </summary>
+        /// <param name="action">The method that you want to try.</param>
         public static void Handler(Action action)
         {
             try

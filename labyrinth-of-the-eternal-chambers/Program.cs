@@ -5,7 +5,9 @@ namespace labyrinth_of_the_eternal_chambers
 {
     internal class Program
     {
-        // Make the console full screen.
+        /// <summary>
+        /// To maximize the console screen and to start the game.
+        /// </summary>
         static void Main()
         {
             InputSimulator simulator = new();
@@ -20,6 +22,10 @@ namespace labyrinth_of_the_eternal_chambers
             Error.Handler(Menu.Start);
         }
 
+        /// <summary>
+        /// Toggles font size depending on the strokes given.
+        /// </summary>
+        /// <param name="strokes">The number of clicks for scrolling, possitive means forward, negative means backwards.</param>
         public static void ToggleFontSize(int strokes)
         {
             InputSimulator simulator = new();

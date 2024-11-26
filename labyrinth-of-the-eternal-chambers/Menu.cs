@@ -8,6 +8,9 @@ namespace labyrinth_of_the_eternal_chambers
         private static bool exitFlag = false;
         private static bool directExit = false;
 
+        /// <summary>
+        /// To read when the user presses a key to know if they want to start the game or to exit the program.
+        /// </summary>
         public static void Start()
         {
             Console.Clear();
@@ -37,6 +40,9 @@ namespace labyrinth_of_the_eternal_chambers
             }
         }
 
+        /// <summary>
+        /// To know if the user wants to start, restart, or quit the game.
+        /// </summary>
         private static void ExitMenuKey()
         {
             while (true)
@@ -72,7 +78,11 @@ namespace labyrinth_of_the_eternal_chambers
             Error.Handler(Game.Execute);
         }
 
-        // Moving text menu animation.
+        /// <summary>
+        /// Animation for the moving text. Uses the parameter bool next to identify whether to bring the text up or down the line.
+        /// </summary>
+        /// <param name="title">The text you wish to animate.</param>
+        /// <param name="next">The boolean which represents whether to move up or down.</param>
         private static void MoveText(string title, bool next)
         {
             string currentTitle = title;
@@ -85,6 +95,11 @@ namespace labyrinth_of_the_eternal_chambers
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(currentTitle);
         }
+
+        /// <summary>
+        /// Exit Menu. To quit the program or return to where the user left off.
+        /// </summary>
+        /// <param name="isInGame">The boolean that represents wheter your in-game or not, default to false.</param>
         public static void Exit(bool isInGame = false)
         {
             string exitMenu = Token.exitMenu;
@@ -152,12 +167,18 @@ namespace labyrinth_of_the_eternal_chambers
             }
         }
 
+        /// <summary>
+        /// To exit the program. Dynamically pressing ALT + F4.
+        /// </summary>
         private static void End()
         {
             InputSimulator simulator = new();
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.F4);
         }
 
+        /// <summary>
+        /// To display the game over message, whether the user won or not.
+        /// </summary>
         public static void GameOver()
         {
             Console.Clear();
@@ -227,6 +248,13 @@ namespace labyrinth_of_the_eternal_chambers
             }
         }
 
+        /// <summary>
+        /// To merge the ASCII message and the ASCII number since the ASCII number is dynamically provided.
+        /// </summary>
+        /// <param name="messageLines">The ASCII Art texts the you wish to merged from.</param>
+        /// <param name="token">The ASCII Art you wish to merged with the messageLines.</param>
+        /// <param name="additionalSpace">Represents whether you want an additional space to merged to, or not, default to false.</param>
+        /// <returns>The merged ASCII Arts.</returns>
         private static List<string> MergedNumberToken(string[] messageLines, string token, bool additionalSpace = false)
         {
             List<string> numberLines = Enumerable.Range(0, (int)Math.Ceiling(token.Length / 8.0))
@@ -259,6 +287,9 @@ namespace labyrinth_of_the_eternal_chambers
             return mergedLines;
         }
 
+        /// <summary>
+        /// To restart the game and restore all initial variables to their default values.
+        /// </summary>
         private static void Restart()
         {
             Program.ToggleFontSize(2);
@@ -280,6 +311,9 @@ namespace labyrinth_of_the_eternal_chambers
             Game.Execute();
         }
 
+        /// <summary>
+        /// Guide Menu. To display the player's goal and the controllers of the game.
+        /// </summary>
         public static void Guide()
         {
             int patternLength = (int)Configurations.PATTERN_LENGTH;
