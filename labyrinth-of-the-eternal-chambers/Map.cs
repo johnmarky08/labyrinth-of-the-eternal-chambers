@@ -1,5 +1,4 @@
-﻿
-namespace labyrinth_of_the_eternal_chambers
+﻿namespace labyrinth_of_the_eternal_chambers
 {
     internal class Map
     {

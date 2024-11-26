@@ -1,6 +1,4 @@
-﻿using WindowsInput;
-using WindowsInput.Native;
-namespace labyrinth_of_the_eternal_chambers
+﻿namespace labyrinth_of_the_eternal_chambers
 {
     internal class Game
     {
@@ -18,10 +16,8 @@ namespace labyrinth_of_the_eternal_chambers
         // Main Game Methods
         internal static void Execute()
         {
-            // Minimize buffersize for ASCII art to fit on screen.
-            InputSimulator simulator = new();
-            for (int i = 0; i < 6; i++)
-                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);
+            // Minimize fontsize for ASCII art to fit on screen.
+            Program.ToggleFontSize(-6);
 
             // Game settings loader.
             Thread.Sleep(100);

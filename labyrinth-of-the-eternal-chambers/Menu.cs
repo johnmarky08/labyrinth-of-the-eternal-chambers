@@ -5,13 +5,13 @@ namespace labyrinth_of_the_eternal_chambers
 {
     internal class Menu
     {
-        private static readonly InputSimulator simulator = new();
         private static bool exitFlag = false;
         private static bool directExit = false;
 
         public static void Start()
         {
             Console.Clear();
+            Console.CursorVisible = false;
 
             // Start game if presses space.
             Thread.Sleep(100);
@@ -66,8 +66,7 @@ namespace labyrinth_of_the_eternal_chambers
                 Thread.Sleep(50);
             }
 
-            for (int i = 0; i < 3; i++)
-                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
+            Program.ToggleFontSize(3);
 
             Console.Clear();
             Error.Handler(Game.Execute);
@@ -155,6 +154,7 @@ namespace labyrinth_of_the_eternal_chambers
 
         private static void End()
         {
+            InputSimulator simulator = new();
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.F4);
         }
 
@@ -163,10 +163,8 @@ namespace labyrinth_of_the_eternal_chambers
             Console.Clear();
             Thread.Sleep(50);
 
-            // Enlarge buffersize.
-            InputSimulator simulator = new();
-            for (int i = 0; i < 5; i++)
-                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
+            // Enlarge fontsize.
+            Program.ToggleFontSize(5);
 
             // Display game over texts.
             Thread.Sleep(100);
@@ -187,7 +185,7 @@ namespace labyrinth_of_the_eternal_chambers
             bool nextText = true;
             exitFlag = false;
 
-            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);
+            Program.ToggleFontSize(-1);
             Thread.Sleep(100);
             Console.Clear();
 
@@ -263,8 +261,7 @@ namespace labyrinth_of_the_eternal_chambers
 
         private static void Restart()
         {
-            for (int i = 0; i < 2; i++)
-                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
+            Program.ToggleFontSize(2);
 
             // Set all variables to default
             Game.playerX = Game.defaultPlayerX;

@@ -1,7 +1,4 @@
-﻿using WindowsInput;
-using WindowsInput.Native;
-
-namespace labyrinth_of_the_eternal_chambers
+﻿namespace labyrinth_of_the_eternal_chambers
 {
     internal class Error
     {
@@ -13,10 +10,7 @@ namespace labyrinth_of_the_eternal_chambers
             }
             catch (Exception error)
             {
-                InputSimulator simulator = new();
-
-                for (int i = 0; i < 6; i++)
-                    simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_PLUS);
+                Program.ToggleFontSize(6);
 
                 Thread.Sleep(100);
                 Console.Clear();

@@ -5,21 +5,27 @@ namespace labyrinth_of_the_eternal_chambers
 {
     internal class Program
     {
+        // Make the console full screen.
         static void Main()
         {
-            // Make the console full screen.
-            Console.CursorVisible = false;
             InputSimulator simulator = new();
-            Thread.Sleep(500);
-            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.RETURN);
-            Thread.Sleep(500);
-            if (OperatingSystem.IsWindows())
-                Console.SetBufferSize(Console.WindowWidth, Console.LargestWindowHeight);
 
-            for (int i = 0; i < 3; i++)
-                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.OEM_MINUS);
+            simulator.Keyboard.KeyPress(VirtualKeyCode.F11);
+            Thread.Sleep(50);
+            ToggleFontSize(-3);
+
+            Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+            Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
             Error.Handler(Menu.Start);
+        }
+
+        public static void ToggleFontSize(int strokes)
+        {
+            InputSimulator simulator = new();
+            simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+            simulator.Mouse.VerticalScroll(strokes);
+            simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
         }
     }
 }
