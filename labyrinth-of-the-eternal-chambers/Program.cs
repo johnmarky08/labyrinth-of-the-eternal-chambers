@@ -29,9 +29,10 @@ namespace labyrinth_of_the_eternal_chambers
         public static void ToggleFontSize(int strokes)
         {
             InputSimulator simulator = new();
-            simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
-            simulator.Mouse.VerticalScroll(strokes);
-            simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+            for (int i = 0; i < Math.Abs(strokes); i++)
+            {
+                simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, ((strokes > 0) ? VirtualKeyCode.OEM_PLUS : VirtualKeyCode.OEM_MINUS));
+            }
         }
     }
 }
