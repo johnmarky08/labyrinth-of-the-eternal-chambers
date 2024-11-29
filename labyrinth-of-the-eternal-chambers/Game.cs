@@ -1,4 +1,6 @@
-﻿namespace labyrinth_of_the_eternal_chambers
+﻿using WindowsInput;
+
+namespace labyrinth_of_the_eternal_chambers
 {
     internal class Game
     {
@@ -27,6 +29,10 @@
             Map.CreateMaps();
             Map.ChangeMap(roomNumber, playerY, playerX);
             Logic.GeneratePattern();
+
+            // Flash the guide on start up
+            InputSimulator simulator = new();
+            simulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F1);
 
             // Start the game.
             Error.Handler(StartGameLoop);

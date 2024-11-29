@@ -141,7 +141,12 @@ namespace labyrinth_of_the_eternal_chambers
                                         int adjustedY = y / Map.blockSize * Map.blockSize;
                                         int adjustedX = x / Map.blockSize * Map.blockSize;
 
-                                        if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
+                                        if (adjustedY >= Map.currentMap.GetLength(0) || adjustedX >= Map.currentMap.GetLength(1))
+                                        {
+                                            Console.ResetColor();
+                                            Console.Write(' ');
+                                        }
+                                        else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
                                         {
                                             Console.ResetColor(); // Boundary color
                                             Console.Write(Map.currentMap[y, x]);
@@ -353,7 +358,12 @@ namespace labyrinth_of_the_eternal_chambers
                                     int adjustedY = y / Map.blockSize * Map.blockSize;
                                     int adjustedX = x / Map.blockSize * Map.blockSize;
 
-                                    if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
+                                    if (adjustedY >= Map.currentMap.GetLength(0) || adjustedX >= Map.currentMap.GetLength(1))
+                                    {
+                                        Console.ResetColor();
+                                        Console.Write(' ');
+                                    }
+                                    else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
                                     {
                                         Console.ResetColor(); // Boundary color
                                         Console.Write(Map.currentMap[y, x]);
