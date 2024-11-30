@@ -106,6 +106,7 @@ namespace labyrinth_of_the_eternal_chambers
             int startY = (Console.BufferHeight - 17) / 2;
             int startX = (Console.BufferWidth - 109) / 2;
 
+            Program.ToggleBackgroundMusic(2);
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Map.DrawToken(startY, startX, ConsoleColor.White, exitMenu);
 
@@ -123,6 +124,7 @@ namespace labyrinth_of_the_eternal_chambers
                     case ConsoleKey.Escape:
                         {
                             Console.BackgroundColor = ConsoleColor.Black;
+                            Program.ToggleBackgroundMusic(1);
 
                             if (!isInGame)
                             {
@@ -186,6 +188,8 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         public static void GameOver()
         {
+            Program.ToggleBackgroundMusic(0);
+            Program.ChangeBackgroundMusic("bg1");
             Console.Clear();
             Thread.Sleep(50);
 

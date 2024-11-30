@@ -28,10 +28,12 @@ namespace labyrinth_of_the_eternal_chambers
             public string FaceName;
         }
 
-        private static readonly AudioFileReader backgroundMusic = new(@"Sounds\bg.mp3");
-        private static readonly WaveOutEvent backgroundMusicOutput = new();
+        public static string currentBackgroundMusic = "bg1";
         private static readonly object lockObject = new();
-
+        private static AudioFileReader backgroundMusic = new(@$"Sounds\{currentBackgroundMusic}.mp3");
+        private static WaveOutEvent backgroundMusicOutput = new();
+        private static bool musicPlaying = true;
+        private static Thread bgMusicThread = new(PlayBackgroundMusic);
         /// <summary>
         /// To maximize the console screen, start the background music, and start the game.
         /// </summary>
@@ -63,7 +65,6 @@ namespace labyrinth_of_the_eternal_chambers
             Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
-            Thread bgMusicThread = new(PlayBackgroundMusic);
             bgMusicThread.Start();
 
             Error.Handler(Menu.Start);
@@ -82,7 +83,7 @@ namespace labyrinth_of_the_eternal_chambers
                 }
                 backgroundMusicOutput.Play();
 
-                while (true)
+                while (musicPlaying)
                 {
 
                     if (backgroundMusicOutput.PlaybackState == PlaybackState.Stopped)
@@ -107,6 +108,75 @@ namespace labyrinth_of_the_eternal_chambers
             }
         }
 
+        public static void ToggleBackgroundMusic(int playPauseStop)
+        {
+            lock (lockObject)
+            {
+                switch (playPauseStop)
+                {
+                    // Stop
+                    case 0:
+                        {
+                            musicPlaying = false;
+                            backgroundMusicOutput.Stop();
+                            bgMusicThread.Join(); // Ensure the thread has stopped
+                            break;
+                        }
+                    // Play
+                    case 1:
+                        {
+                            if (backgroundMusicOutput.PlaybackState != PlaybackState.Playing)
+                            {
+                                musicPlaying = true;
+                                if (!bgMusicThread.IsAlive)
+                                {
+                                    bgMusicThread = new(PlayBackgroundMusic);
+                                    bgMusicThread.Start();
+                                }
+                                else
+                                {
+                                    backgroundMusicOutput.Play();
+                                }
+                            }
+                            break;
+                        }
+                    // Pause
+                    case 2:
+                        {
+                            if (backgroundMusicOutput.PlaybackState == PlaybackState.Playing)
+                            {
+                                backgroundMusicOutput.Pause();
+                            }
+                            break;
+                        }
+                }
+            }
+        }
+
+        public static void ChangeBackgroundMusic(string fileName)
+        {
+            lock (lockObject)
+            {
+                musicPlaying = false;
+                if (bgMusicThread.IsAlive)
+                {
+                    backgroundMusicOutput.Stop();
+                    bgMusicThread.Join();
+                }
+
+                backgroundMusic.Dispose();
+                backgroundMusicOutput.Dispose();
+
+                backgroundMusic = new(@$"Sounds\{fileName}.mp3");
+                backgroundMusicOutput = new();
+
+                musicPlaying = true;
+                bgMusicThread = new(PlayBackgroundMusic);
+                bgMusicThread.Start();
+                currentBackgroundMusic = fileName;
+            }
+        }
+
         /// <summary>
         /// Paused the background music, then played a specific sound effect, then played the background music again.
         /// </summary>
@@ -117,10 +187,7 @@ namespace labyrinth_of_the_eternal_chambers
             {
                 try
                 {
-                    lock (lockObject)
-                    {
-                        backgroundMusicOutput.Pause();
-                    }
+                    ToggleBackgroundMusic(2);
 
                     using AudioFileReader audioFile = new(@$"Sounds\{fileName}.mp3");
                     using WaveOutEvent outputDevice = new();
@@ -132,10 +199,7 @@ namespace labyrinth_of_the_eternal_chambers
                         Thread.Sleep(100);
                     }
 
-                    lock (lockObject)
-                    {
-                        backgroundMusicOutput.Play();
-                    }
+                    ToggleBackgroundMusic(1);
                 }
                 catch (Exception exception)
                 {

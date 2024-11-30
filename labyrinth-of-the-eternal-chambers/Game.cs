@@ -45,6 +45,18 @@ namespace labyrinth_of_the_eternal_chambers
         {
             while (!won || !gameOver)
             {
+                if (!(Program.currentBackgroundMusic == "bg2") && !(roomNumber == (int)Configurations.PATTERN_LENGTH))
+                {
+                    Program.ToggleBackgroundMusic(0);
+                    Program.ChangeBackgroundMusic("bg2");
+                }
+                else if (!(Program.currentBackgroundMusic == "bg3") && (roomNumber == (int)Configurations.PATTERN_LENGTH))
+                {
+                    Program.ToggleBackgroundMusic(0);
+                    Program.ChangeBackgroundMusic("bg3");
+                }
+
+
                 if (Console.KeyAvailable)
                 {
                     ConsoleKey key = Console.ReadKey(true).Key;
