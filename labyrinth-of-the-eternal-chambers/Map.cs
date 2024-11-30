@@ -18,7 +18,7 @@
             (0, 7),  // Down
             (-7, 0)  // Left
         };
-        private static readonly (int, int)[] shadowMaze =
+        public static readonly (int, int)[] shadowMaze =
         {
             (-7, 0),   // 1 block above
             (7, 0),    // 1 block below

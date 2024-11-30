@@ -151,7 +151,13 @@ namespace labyrinth_of_the_eternal_chambers
                                         else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
                                         {
                                             Console.ResetColor(); // Boundary color
-                                            Console.Write(Map.currentMap[y, x]);
+                                            if (Map.currentMapNumber == Map.maps.Count)
+                                            {
+                                                int currentY = Game.playerY - adjustedY;
+                                                int currentX = Game.playerX - adjustedX;
+                                                if (Map.shadowMaze.Contains((currentY, currentX))) Console.Write(Map.currentMap[y, x]);
+                                                else Console.Write(' ');
+                                            }
                                         }
                                         else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.player))
                                         {
@@ -362,6 +368,7 @@ namespace labyrinth_of_the_eternal_chambers
                                     int adjustedY = y / Map.blockSize * Map.blockSize;
                                     int adjustedX = x / Map.blockSize * Map.blockSize;
 
+
                                     if (adjustedY >= Map.currentMap.GetLength(0) || adjustedX >= Map.currentMap.GetLength(1))
                                     {
                                         Console.ResetColor();
@@ -370,7 +377,13 @@ namespace labyrinth_of_the_eternal_chambers
                                     else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.boundary))
                                     {
                                         Console.ResetColor(); // Boundary color
-                                        Console.Write(Map.currentMap[y, x]);
+                                        if (Map.currentMapNumber == Map.maps.Count)
+                                        {
+                                            int currentY = Game.playerY - adjustedY;
+                                            int currentX = Game.playerX - adjustedX;
+                                            if (Map.shadowMaze.Contains((currentY, currentX))) Console.Write(Map.currentMap[y, x]);
+                                            else Console.Write(' ');
+                                        }
                                     }
                                     else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.player))
                                     {
