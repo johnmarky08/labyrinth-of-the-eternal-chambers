@@ -107,19 +107,24 @@ namespace labyrinth_of_the_eternal_chambers
 
                     if (Logic.currentPattern.Equals(Logic.pattern))
                     {
+                        Program.PlaySoundEffect("victory");
                         won = true;
                         return true;
                     }
 
+                    Program.PlaySoundEffect((roomNumber % 2 == 0) ? "correctDoor2" : "correctDoor1");
                     Map.ChangeMap(++roomNumber, playerY, playerX);
                 }
                 else
                 {
                     if (++wrongDoors >= (int)Configurations.MAX_GUESS)
                     {
+                        Program.PlaySoundEffect("gameOver");
                         gameOver = true;
                         return true;
                     }
+
+                    Program.PlaySoundEffect("wrongDoor");
                     Logic.currentPattern = "";
                     Map.ChangeMap(roomNumber = 1, playerY, playerX);
                 }

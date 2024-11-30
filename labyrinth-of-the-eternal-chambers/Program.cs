@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using NAudio.Wave;
+using System.Runtime.InteropServices;
 using WindowsInput;
 using WindowsInput.Native;
 
@@ -27,8 +28,12 @@ namespace labyrinth_of_the_eternal_chambers
             public string FaceName;
         }
 
+        private static readonly AudioFileReader backgroundMusic = new(@"Sounds\bg.mp3");
+        private static readonly WaveOutEvent backgroundMusicOutput = new();
+        private static readonly object lockObject = new();
+
         /// <summary>
-        /// To maximize the console screen and to start the game.
+        /// To maximize the console screen, start the background music, and start the game.
         /// </summary>
         static void Main()
         {
@@ -58,7 +63,85 @@ namespace labyrinth_of_the_eternal_chambers
             Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
+            Thread bgMusicThread = new(PlayBackgroundMusic);
+            bgMusicThread.Start();
+
             Error.Handler(Menu.Start);
+        }
+
+        /// <summary>
+        /// To play background music while running the program.
+        /// </summary>
+        private static void PlayBackgroundMusic()
+        {
+            try
+            {
+                lock (lockObject)
+                {
+                    backgroundMusicOutput.Init(backgroundMusic);
+                }
+                backgroundMusicOutput.Play();
+
+                while (true)
+                {
+
+                    if (backgroundMusicOutput.PlaybackState == PlaybackState.Stopped)
+                    {
+                        lock (lockObject)
+                        {
+                            backgroundMusic.Position = 0;
+                            backgroundMusicOutput.Play();
+                        }
+                    }
+                    Thread.Sleep(100);
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"Background music error: {exception.Message}");
+            }
+            finally
+            {
+                backgroundMusic.Dispose();
+                backgroundMusicOutput.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Paused the background music, then played a specific sound effect, then played the background music again.
+        /// </summary>
+        /// <param name="fileName">The file name of the sound effect you want to play.</param>
+        public static void PlaySoundEffect(string fileName)
+        {
+            new Thread(() =>
+            {
+                try
+                {
+                    lock (lockObject)
+                    {
+                        backgroundMusicOutput.Pause();
+                    }
+
+                    using AudioFileReader audioFile = new(@$"Sounds\{fileName}.mp3");
+                    using WaveOutEvent outputDevice = new();
+                    outputDevice.Init(audioFile);
+                    outputDevice.Play();
+
+                    while (outputDevice.PlaybackState == PlaybackState.Playing)
+                    {
+                        Thread.Sleep(100);
+                    }
+
+                    lock (lockObject)
+                    {
+                        backgroundMusicOutput.Play();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"Sound Effect error: {exception.Message}");
+                }
+            }).Start();
         }
 
         /// <summary>
