@@ -108,6 +108,10 @@ namespace labyrinth_of_the_eternal_chambers
             }
         }
 
+        /// <summary>
+        /// To play, pause or stop the background music.
+        /// </summary>
+        /// <param name="playPauseStop"> 0 - Stop, 1 - Play, 2 - Pause</param>
         public static void ToggleBackgroundMusic(int playPauseStop)
         {
             lock (lockObject)
@@ -153,6 +157,10 @@ namespace labyrinth_of_the_eternal_chambers
             }
         }
 
+        /// <summary>
+        /// To change the current background music.
+        /// </summary>
+        /// <param name="fileName">File name of the new background music</param>
         public static void ChangeBackgroundMusic(string fileName)
         {
             lock (lockObject)
