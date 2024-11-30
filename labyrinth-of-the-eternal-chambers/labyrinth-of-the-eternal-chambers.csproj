@@ -6,7 +6,6 @@
     <RootNamespace>labyrinth_of_the_eternal_chambers</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<NoWarn>NU1701</NoWarn>
 	<NoWarn>SYSLIB1054</NoWarn>
   </PropertyGroup>
 
@@ -17,8 +16,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="InputSimulator" Version="1.0.4" />
+    <PackageReference Include="InputSimulator" Version="1.0.4">
+	    <NoWarn>NU1701</NoWarn>
+	</PackageReference>
     <PackageReference Include="NAudio" Version="2.2.1" />
+	<PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1">
+        <NoWarn>NU1902;NU1903</NoWarn>
+    </PackageReference>
+	<PackageReference Include="System.Drawing.Common" Version="4.7.0">
+		<NoWarn>NU1904</NoWarn>
+	</PackageReference>
   </ItemGroup>
 
 </Project>

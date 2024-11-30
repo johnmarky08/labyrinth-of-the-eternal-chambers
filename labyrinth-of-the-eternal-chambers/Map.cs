@@ -12,14 +12,14 @@
         public static char[,] currentMap = { };
         public static int currentMapNumber = 0;
         private static readonly (int dx, int dy)[] directions =
-        {
+        [
             (0, -7), // Up
             (7, 0),  // Right
             (0, 7),  // Down
             (-7, 0)  // Left
-        };
+        ];
         public static readonly (int, int)[] shadowMaze =
-        {
+        [
             (-7, 0),   // 1 block above
             (7, 0),    // 1 block below
             (0, -7),   // 1 block to the left
@@ -28,7 +28,7 @@
             (-7, 7),   // Top-right diagonal
             (7, -7),   // Bottom-left diagonal
             (7, 7)     // Bottom-right diagonal
-        };
+        ];
 
         /// <summary>
         /// Check whether the given startX and startY match the representationToken in the current map.
