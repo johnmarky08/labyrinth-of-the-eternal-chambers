@@ -158,6 +158,7 @@ namespace labyrinth_of_the_eternal_chambers
                                                 if (Map.shadowMaze.Contains((currentY, currentX))) Console.Write(Map.currentMap[y, x]);
                                                 else Console.Write(' ');
                                             }
+                                            else Console.Write(Map.currentMap[y, x]);
                                         }
                                         else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.player))
                                         {
@@ -195,7 +196,6 @@ namespace labyrinth_of_the_eternal_chambers
         public static void GameOver()
         {
             Program.ToggleBackgroundMusic(0);
-            Program.ChangeBackgroundMusic("bg1");
             Console.Clear();
             Thread.Sleep(50);
 
@@ -211,10 +211,17 @@ namespace labyrinth_of_the_eternal_chambers
                 Console.SetCursorPosition(0, 5);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine(Token.endMessage1);
+                Thread.Sleep(4_000);
+                Program.ChangeBackgroundMusic("bg1");
                 Thread.Sleep(10_000); // Wait for 10 seconds before proceeding to next message
             }
 
             // Second end message.
+            if (Program.currentBackgroundMusic != "bg1")
+            {
+                Thread.Sleep(2_000);
+                Program.ChangeBackgroundMusic("bg1");
+            }
             directExit = true;
             Thread keyListenerThread = new(ExitMenuKey);
             keyListenerThread.Start();
@@ -384,6 +391,7 @@ namespace labyrinth_of_the_eternal_chambers
                                             if (Map.shadowMaze.Contains((currentY, currentX))) Console.Write(Map.currentMap[y, x]);
                                             else Console.Write(' ');
                                         }
+                                        else Console.Write(Map.currentMap[y, x]);
                                     }
                                     else if (Map.Check(Map.currentMap, adjustedY, adjustedX, Token.player))
                                     {
