@@ -467,27 +467,27 @@
             string wrongDoorsToken = Game.wrongDoors.ToString();
             string roomNumberToken = Game.roomNumber.ToString();
 
-            DrawToken(height + 1, 0, wrongDoorsColor, string.Join('\n', Menu.MergedNumberToken(Token.wrongDoors1.Split('\n'),
+            DrawToken(height + 1, 0, wrongDoorsColor, string.Join('\n', Menu.MergeTokens(Token.wrongDoors1.Split('\n'),
                                                              (Game.wrongDoors < 10)
-                                                             ? string.Join('\n', Menu.MergedNumberToken(
+                                                             ? string.Join('\n', Menu.MergeTokens(
                                                                  Token.ConvertNumber(
                                                                     wrongDoorsToken).Split('\n'),
                                                                     Token.ConvertNumber("%"),
                                                                     true))
-                                                             : string.Join('\n', Menu.MergedNumberToken(
+                                                             : string.Join('\n', Menu.MergeTokens(
                                                                  Token.ConvertNumber(
                                                                     wrongDoorsToken[0].ToString()).Split('\n'),
                                                                     Token.ConvertNumber(
                                                                     wrongDoorsToken[1].ToString()),
                                                                     true)))));
-            DrawToken(height + 1, width - 45, roomNumberColor, string.Join('\n', Menu.MergedNumberToken(Token.roomNumber.Split('\n'),
+            DrawToken(height + 1, width - 45, roomNumberColor, string.Join('\n', Menu.MergeTokens(Token.roomNumber.Split('\n'),
                                                              (Game.roomNumber < 10)
-                                                             ? string.Join('\n', Menu.MergedNumberToken(
+                                                             ? string.Join('\n', Menu.MergeTokens(
                                                                  Token.ConvertNumber(
                                                                     roomNumberToken).Split('\n'),
                                                                     Token.ConvertNumber("%"),
                                                                     true))
-                                                             : string.Join('\n', Menu.MergedNumberToken(
+                                                             : string.Join('\n', Menu.MergeTokens(
                                                                  Token.ConvertNumber(
                                                                     roomNumberToken[0].ToString()).Split('\n'),
                                                                     Token.ConvertNumber(

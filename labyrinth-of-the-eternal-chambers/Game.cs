@@ -51,11 +51,11 @@ namespace labyrinth_of_the_eternal_chambers
                             {
                                 if (mergedName.Length > 0)
                                 {
-                                    mergedName = string.Join('\n', Menu.MergedNumberToken(mergedName.Split('\n'), Token.ConvertText(character.ToString())));
+                                    mergedName = string.Join('\n', Menu.MergeTokens(mergedName.Split('\n'), Token.ConvertText(character.ToString())));
                                 }
                                 else
                                 {
-                                    mergedName = string.Join('\n', Menu.MergedNumberToken(Token.emptyString.Split('\n'), Token.ConvertText(character.ToString())));
+                                    mergedName = string.Join('\n', Menu.MergeTokens(Token.emptyString.Split('\n'), Token.ConvertText(character.ToString())));
                                 }
                             }
                             currentName = mergedName;
@@ -70,7 +70,7 @@ namespace labyrinth_of_the_eternal_chambers
                         if (char.IsLetter(newToken))
                         {
                             string nameToken = Token.ConvertText(newToken.ToString());
-                            currentName = string.Join('\n', Menu.MergedNumberToken(currentName.Length > 0 ? currentName.Split('\n') : Token.emptyString.Split('\n'), nameToken));
+                            currentName = string.Join('\n', Menu.MergeTokens(currentName.Length > 0 ? currentName.Split('\n') : Token.emptyString.Split('\n'), nameToken));
                             inputName += newToken;
                         }
                     }

@@ -49,7 +49,7 @@ namespace labyrinth_of_the_eternal_chambers
         }
 
         /// <summary>
-        /// Overwrites the high score of the selected player if it is higher than before.
+        /// Overwrites the high score of the selected player if it is lower than before.
         /// </summary>
         /// <param name="name">The player name.</param>
         /// <param name="newHighScore">New high score of the player.</param>
@@ -59,7 +59,7 @@ namespace labyrinth_of_the_eternal_chambers
             connection.Open();
 
             SQLiteCommand updateCommand = new(
-                "UPDATE Players SET HighScore = @newHighScore WHERE Name = @name AND HighScore < @newHighScore;",
+                "UPDATE Players SET HighScore = @newHighScore WHERE Name = @name AND HighScore > @newHighScore;",
                 connection
             );
             updateCommand.Parameters.AddWithValue("@name", name);

@@ -234,10 +234,18 @@ namespace labyrinth_of_the_eternal_chambers
                 {
                     string score = Token.wrongDoors2;
                     string[] scoreLines = score.Split('\n');
-                    string number = Game.wrongDoors < 10 ? string.Join('\n', MergedNumberToken(Token.whitespace.Split('\n'), Token.ConvertNumber(Game.wrongDoors.ToString()))) : Token.ConvertNumber(Game.wrongDoors.ToString());
-                    List<string> mergedLines = MergedNumberToken(scoreLines, number);
+                    string number = Game.wrongDoors < 10 ? string.Join('\n', MergeTokens(Token.whitespace.Split('\n'), Token.ConvertNumber(Game.wrongDoors.ToString()))) : Token.ConvertNumber(Game.wrongDoors.ToString());
+                    List<string> mergedLines = MergeTokens(scoreLines, number);
 
                     endMessage += '\n' + string.Join('\n', mergedLines);
+
+                    int highScore = Database.GetPlayerHighScore(Game.playerName);
+                    string[] highScoreLines = Token.highScore.Split('\n');
+                    string highScoreNumber = highScore < 10 ? string.Join('\n', MergeTokens(Token.whitespace.Split('\n'), Token.ConvertNumber(highScore.ToString()))) : Token.ConvertNumber(highScore.ToString());
+                    string mergedHighScore = string.Join('\n', MergeTokens(highScoreLines, highScoreNumber));
+
+                    endMessage += '\n' + Token.leastDoor;
+                    endMessage += '\n' + string.Join('\n', mergedHighScore);
                 }
 
                 string playMessage = Convert.ToDouble(Game.wrongDoors) switch
@@ -270,7 +278,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// <param name="token">The ASCII Art you wish to merged with the messageLines.</param>
         /// <param name="additionalSpace">Represents whether you want an additional space to merged to, or not, default to false.</param>
         /// <returns>The merged ASCII Arts.</returns>
-        public static List<string> MergedNumberToken(string[] messageLines, string token, bool additionalSpace = false)
+        public static List<string> MergeTokens(string[] messageLines, string token, bool additionalSpace = false)
         {
             // Determine the dimensions of the token
             string[] tokenLines = token.Split('\n');
@@ -332,14 +340,14 @@ namespace labyrinth_of_the_eternal_chambers
             int patternLength = (int)Configurations.PATTERN_LENGTH;
             string guideMenu = Token.guideMessage1;
             string patternToken = patternLength.ToString();
-            guideMenu += string.Join('\n', MergedNumberToken(Token.guideMessage2.Split('\n'),
+            guideMenu += string.Join('\n', MergeTokens(Token.guideMessage2.Split('\n'),
                                                              (patternLength < 10)
-                                                             ? string.Join('\n', MergedNumberToken(
+                                                             ? string.Join('\n', MergeTokens(
                                                                  Token.ConvertNumber(
                                                                     patternToken).Split('\n'),
                                                                     Token.ConvertNumber("%"),
                                                                     true))
-                                                             : string.Join('\n', MergedNumberToken(
+                                                             : string.Join('\n', MergeTokens(
                                                                  Token.ConvertNumber(
                                                                     patternToken[0].ToString()).Split('\n'),
                                                                     Token.ConvertNumber(
