@@ -34,6 +34,7 @@ namespace labyrinth_of_the_eternal_chambers
         private static WaveOutEvent backgroundMusicOutput = new();
         private static bool musicPlaying = true;
         private static Thread bgMusicThread = new(PlayBackgroundMusic);
+
         /// <summary>
         /// To maximize the console screen, start the background music, and start the game.
         /// </summary>

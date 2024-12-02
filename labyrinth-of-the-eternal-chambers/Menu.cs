@@ -29,12 +29,10 @@ namespace labyrinth_of_the_eternal_chambers
 
                 MoveText(Token.gameTitle, nextText);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(Token.startKey);
-
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine(Token.exitKey1);
-
+                int startLength = Token.startKey.Split('\n')[0].Length;
+                int exitLength = Token.exitKey1.Split('\n')[0].Length;
+                Map.DrawToken(Console.CursorTop + 6, (Console.BufferWidth - startLength) / 2, ConsoleColor.Green, Token.startKey);
+                Map.DrawToken(Console.CursorTop + 2, (Console.BufferWidth - (exitLength + (startLength - exitLength))) / 2, ConsoleColor.White, Token.exitKey1);
 
                 Thread.Sleep(500);
             }
@@ -81,19 +79,14 @@ namespace labyrinth_of_the_eternal_chambers
         /// <summary>
         /// Animation for the moving text. Uses the parameter bool next to identify whether to bring the text up or down the line.
         /// </summary>
-        /// <param name="title">The text you wish to animate.</param>
+        /// <param name="currentTitle">The text you wish to animate.</param>
         /// <param name="next">The boolean which represents whether to move up or down.</param>
-        private static void MoveText(string title, bool next)
+        private static void MoveText(string currentTitle, bool next)
         {
-            string currentTitle = title;
+            int length = currentTitle.Split('\n').Length;
+            if (next) length++;
 
-            if (next)
-            {
-                currentTitle = currentTitle.Insert(0, "\n");
-            }
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(currentTitle);
+            Map.DrawToken((Console.BufferHeight - (length + 16)) / 2, (Console.BufferWidth - currentTitle.Split('\n')[0].Length) / 2, ConsoleColor.Red, currentTitle);
         }
 
         /// <summary>
@@ -208,11 +201,12 @@ namespace labyrinth_of_the_eternal_chambers
             // First end message.
             if (!Game.gameOver && Game.won)
             {
-                Console.SetCursorPosition(0, 5);
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(Token.endMessage1);
+                Map.DrawToken((Console.BufferHeight - Token.endMessage1.Split('\n').Length) / 2,
+                    (Console.BufferWidth - Token.endMessage1.Split('\n')[0].Length) / 2,
+                    ConsoleColor.DarkGray, Token.endMessage1);
                 Thread.Sleep(4_000);
                 Program.ChangeBackgroundMusic("bg1");
+                Database.UpdateHighScore(Game.playerName, Game.wrongDoors);
                 Thread.Sleep(10_000); // Wait for 10 seconds before proceeding to next message
             }
 
@@ -240,10 +234,10 @@ namespace labyrinth_of_the_eternal_chambers
                 {
                     string score = Token.wrongDoors2;
                     string[] scoreLines = score.Split('\n');
-                    string number = Token.ConvertNumber(Game.wrongDoors.ToString());
+                    string number = Game.wrongDoors < 10 ? string.Join('\n', MergedNumberToken(Token.whitespace.Split('\n'), Token.ConvertNumber(Game.wrongDoors.ToString()))) : Token.ConvertNumber(Game.wrongDoors.ToString());
                     List<string> mergedLines = MergedNumberToken(scoreLines, number);
 
-                    endMessage += string.Join('\n', mergedLines);
+                    endMessage += '\n' + string.Join('\n', mergedLines);
                 }
 
                 string playMessage = Convert.ToDouble(Game.wrongDoors) switch
@@ -260,11 +254,10 @@ namespace labyrinth_of_the_eternal_chambers
 
                 MoveText(endMessage, nextText);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(Token.playAgain);
-
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine(Token.exitKey2);
+                int playAgainLength = 121;
+                int exitLength = Token.exitKey1.Split('\n')[0].Length;
+                Map.DrawToken(Console.CursorTop + 6, (Console.BufferWidth - playAgainLength) / 2, ConsoleColor.Green, Token.startKey);
+                Map.DrawToken(Console.CursorTop + 2, (Console.BufferWidth - (exitLength + (playAgainLength - exitLength))) / 2, ConsoleColor.White, Token.exitKey1);
 
                 Thread.Sleep(500);
             }
@@ -277,27 +270,25 @@ namespace labyrinth_of_the_eternal_chambers
         /// <param name="token">The ASCII Art you wish to merged with the messageLines.</param>
         /// <param name="additionalSpace">Represents whether you want an additional space to merged to, or not, default to false.</param>
         /// <returns>The merged ASCII Arts.</returns>
-        private static List<string> MergedNumberToken(string[] messageLines, string token, bool additionalSpace = false)
+        public static List<string> MergedNumberToken(string[] messageLines, string token, bool additionalSpace = false)
         {
-            List<string> numberLines = Enumerable.Range(0, (int)Math.Ceiling(token.Length / 8.0))
-                                    .Select(i => token.Substring(i * 8, Math.Min(8, token.Length - i * 8)))
-                                    .ToList();
+            // Determine the dimensions of the token
+            string[] tokenLines = token.Split('\n');
+            int tokenHeight = tokenLines.Length;
 
-            int totalNumberLines = numberLines.Count;
-            int totalScoreLines = messageLines.Length;
-
+            // Prepare the result list
             List<string> mergedLines = [];
 
-            for (int i = 0; i < totalScoreLines; i++)
+            // Merge each line of the message and token
+            for (int i = 0; i < messageLines.Length; i++)
             {
+                // Start with the message line
                 string mergedLine = messageLines[i];
 
-                for (int j = 0; j < totalNumberLines; j++)
+                // Add the corresponding token line if available
+                if (i < tokenHeight)
                 {
-                    if (i + j * 6 < totalNumberLines)
-                    {
-                        mergedLine += numberLines[i + j * 6];
-                    }
+                    mergedLine += tokenLines[i];
                 }
 
                 if (additionalSpace)
@@ -340,11 +331,20 @@ namespace labyrinth_of_the_eternal_chambers
         {
             int patternLength = (int)Configurations.PATTERN_LENGTH;
             string guideMenu = Token.guideMessage1;
+            string patternToken = patternLength.ToString();
             guideMenu += string.Join('\n', MergedNumberToken(Token.guideMessage2.Split('\n'),
-                                                             Token.ConvertNumber((patternLength < 10)
-                                                                ? (patternLength.ToString() + '%')
-                                                                : patternLength.ToString()),
-                                                             true));
+                                                             (patternLength < 10)
+                                                             ? string.Join('\n', MergedNumberToken(
+                                                                 Token.ConvertNumber(
+                                                                    patternToken).Split('\n'),
+                                                                    Token.ConvertNumber("%"),
+                                                                    true))
+                                                             : string.Join('\n', MergedNumberToken(
+                                                                 Token.ConvertNumber(
+                                                                    patternToken[0].ToString()).Split('\n'),
+                                                                    Token.ConvertNumber(
+                                                                    patternToken[1].ToString()),
+                                                                    true))));
             guideMenu += Token.guideMessage3;
             guideMenu += Token.guideControls;
             guideMenu += Token.closeMenu;

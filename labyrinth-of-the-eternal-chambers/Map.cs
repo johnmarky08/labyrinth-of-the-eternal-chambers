@@ -362,8 +362,7 @@
         /// <param name="x">Starting X position.</param>
         /// <param name="color">Font color.</param>
         /// <param name="chosenToken">ASCII Art Token</param>
-        /// <param name="isScore">Boolean that represents if the given <paramref name="chosenToken"/> is a token or a score.</param>
-        public static void DrawToken(int y, int x, ConsoleColor color, string chosenToken = "", bool isScore = false)
+        public static void DrawToken(int y, int x, ConsoleColor color, string chosenToken = "")
         {
             Console.ForegroundColor = color;
 
@@ -373,32 +372,6 @@
                 {
                     Console.SetCursorPosition(x, y + i);
                     Console.Write(' ');
-                }
-                return;
-            }
-            else if (isScore == true) // Define score as true, since its a nullable one
-            {
-                // Split the string into chunks of 8 characters
-                List<string> chunks = Enumerable.Range(0, (int)Math.Ceiling(chosenToken.Length / 8.0))
-                               .Select(i => chosenToken.Substring(i * 8, Math.Min(8, chosenToken.Length - i * 8)))
-                               .ToList();
-
-                // Group chunks into sub-arrays of up to 6 chunks each
-                List<string[]> groupedChunks = chunks
-                                    .Select((chunk, index) => new { chunk, index })
-                                    .GroupBy(x => x.index / 6)
-                                    .Select(g => g.Select(x => x.chunk).ToArray())
-                                    .ToList();
-                int temporaryY = y;
-                foreach (string[] groupChunk in groupedChunks)
-                {
-                    foreach (string chunk in groupChunk)
-                    {
-                        Console.SetCursorPosition(x, temporaryY++);
-                        Console.Write(chunk);
-                    }
-                    x += 8;
-                    temporaryY = y;
                 }
                 return;
             }
@@ -491,10 +464,35 @@
                 _ => ConsoleColor.Red,
             };
 
-            DrawToken(height + 1, 0, wrongDoorsColor, Token.wrongDoors1);
-            DrawToken(height + 1, 66, wrongDoorsColor, Token.ConvertNumber(Game.wrongDoors.ToString()), true);
-            DrawToken(height + 1, width - 45, roomNumberColor, Token.roomNumber);
-            DrawToken(height + 1, width - 13, roomNumberColor, Token.ConvertNumber(Game.roomNumber.ToString()), true);
+            string wrongDoorsToken = Game.wrongDoors.ToString();
+            string roomNumberToken = Game.roomNumber.ToString();
+
+            DrawToken(height + 1, 0, wrongDoorsColor, string.Join('\n', Menu.MergedNumberToken(Token.wrongDoors1.Split('\n'),
+                                                             (Game.wrongDoors < 10)
+                                                             ? string.Join('\n', Menu.MergedNumberToken(
+                                                                 Token.ConvertNumber(
+                                                                    wrongDoorsToken).Split('\n'),
+                                                                    Token.ConvertNumber("%"),
+                                                                    true))
+                                                             : string.Join('\n', Menu.MergedNumberToken(
+                                                                 Token.ConvertNumber(
+                                                                    wrongDoorsToken[0].ToString()).Split('\n'),
+                                                                    Token.ConvertNumber(
+                                                                    wrongDoorsToken[1].ToString()),
+                                                                    true)))));
+            DrawToken(height + 1, width - 45, roomNumberColor, string.Join('\n', Menu.MergedNumberToken(Token.roomNumber.Split('\n'),
+                                                             (Game.roomNumber < 10)
+                                                             ? string.Join('\n', Menu.MergedNumberToken(
+                                                                 Token.ConvertNumber(
+                                                                    roomNumberToken).Split('\n'),
+                                                                    Token.ConvertNumber("%"),
+                                                                    true))
+                                                             : string.Join('\n', Menu.MergedNumberToken(
+                                                                 Token.ConvertNumber(
+                                                                    roomNumberToken[0].ToString()).Split('\n'),
+                                                                    Token.ConvertNumber(
+                                                                    roomNumberToken[1].ToString()),
+                                                                    true)))));
 
             // Place guide token
             DrawToken(5, width + 10, ConsoleColor.DarkGreen, Token.guide);

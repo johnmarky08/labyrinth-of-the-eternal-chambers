@@ -14,12 +14,78 @@ namespace labyrinth_of_the_eternal_chambers
         public static int roomNumber = 1;
         public static bool won = false;
         public static bool gameOver = false;
+        public static string playerName = "";
 
         /// <summary>
         /// Initialize and render all needed requirements to run the game and start the loop of the game.
         /// </summary>
         internal static void Execute()
         {
+            // Input Player Name
+            Map.DrawToken(5, (Console.BufferWidth - 110) / 2, ConsoleColor.DarkBlue, Token.insertPlayer);
+            string inputName = "";
+            string currentName = "";
+
+            while (true)
+            {
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    if (string.IsNullOrEmpty(inputName)) continue;
+                    break;
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (inputName.Length > 0)
+                    {
+                        inputName = inputName[..^1];
+
+                        if (inputName.Length == 1)
+                        {
+                            currentName = Token.ConvertText(inputName);
+                        }
+                        else
+                        {
+                            string mergedName = "";
+                            foreach (char character in inputName)
+                            {
+                                if (mergedName.Length > 0)
+                                {
+                                    mergedName = string.Join('\n', Menu.MergedNumberToken(mergedName.Split('\n'), Token.ConvertText(character.ToString())));
+                                }
+                                else
+                                {
+                                    mergedName = string.Join('\n', Menu.MergedNumberToken(Token.emptyString.Split('\n'), Token.ConvertText(character.ToString())));
+                                }
+                            }
+                            currentName = mergedName;
+                        }
+                    }
+                }
+                else
+                {
+                    if (inputName.Length < 7)
+                    {
+                        char newToken = key.KeyChar;
+                        if (char.IsLetter(newToken))
+                        {
+                            string nameToken = Token.ConvertText(newToken.ToString());
+                            currentName = string.Join('\n', Menu.MergedNumberToken(currentName.Length > 0 ? currentName.Split('\n') : Token.emptyString.Split('\n'), nameToken));
+                            inputName += newToken;
+                        }
+                    }
+                }
+                Console.Clear();
+                Map.DrawToken((Console.BufferHeight - 12) / 2, (Console.BufferWidth - 110) / 2, ConsoleColor.DarkBlue, Token.insertPlayer);
+                Map.DrawToken((Console.BufferHeight + 5) / 2, (Console.BufferWidth - currentName.Split('\n')[0].Length) / 2, ConsoleColor.White, currentName);
+            }
+            playerName = inputName.PadLeft((7 + inputName.Length) / 2).PadRight(7);
+
+            Database.CreateTable();
+            Database.InsertPlayer(playerName, 0);
+            
+            Token.player = Token.player.Insert(0, playerName + "\n");
+
             // Minimize fontsize for ASCII art to fit on screen.
             Program.ToggleFontSize(-6);
 
