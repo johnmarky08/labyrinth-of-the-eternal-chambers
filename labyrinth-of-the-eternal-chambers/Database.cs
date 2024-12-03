@@ -29,10 +29,8 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         /// <param name="name">The player name.</param>
         /// <param name="highScore">Initialize a high score for them.</param>
-        public static void InsertPlayer(string name, int highScore)
+        public static void InsertPlayer(string name)
         {
-            if (GetPlayerHighScore(name) >= 0) return;
-
             using SQLiteConnection connection = new(connectionString);
             connection.Open();
 
@@ -41,7 +39,7 @@ namespace labyrinth_of_the_eternal_chambers
                 connection
             );
             insertCommand.Parameters.AddWithValue("@name", name);
-            insertCommand.Parameters.AddWithValue("@highScore", highScore);
+            insertCommand.Parameters.AddWithValue("@highScore", null);
             insertCommand.ExecuteNonQuery();
             
             connection.Close();
@@ -59,7 +57,7 @@ namespace labyrinth_of_the_eternal_chambers
             connection.Open();
 
             SQLiteCommand updateCommand = new(
-                "UPDATE Players SET HighScore = @newHighScore WHERE Name = @name AND HighScore > @newHighScore;",
+                "UPDATE Players SET HighScore = @newHighScore WHERE Name = @name AND (HighScore > @newHighScore OR HighScore IS NULL);",
                 connection
             );
             updateCommand.Parameters.AddWithValue("@name", name);
@@ -75,7 +73,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         /// <param name="name">The player name.</param>
         /// <returns>The current high score of the player.</returns>
-        public static int GetPlayerHighScore(string name)
+        public static int? GetPlayerHighScore(string name)
         {
             using SQLiteConnection connection = new(connectionString);
             connection.Open();
@@ -87,10 +85,10 @@ namespace labyrinth_of_the_eternal_chambers
 
             connection.Close();
 
-            // If player not found, return -1
+            // If player not found, return null
             if (result == null || result == DBNull.Value)
             {
-                return -1;
+                return null;
             }
 
             return Convert.ToInt32(result);
@@ -117,5 +115,20 @@ namespace labyrinth_of_the_eternal_chambers
                 return; 
             }
         }
+
+        /// <summary>
+        /// Delete all the table data.
+        /// </summary>
+        public static void TruncateTable()
+        {
+            using SQLiteConnection connection = new(connectionString);
+            connection.Open();
+
+            SQLiteCommand truncateCommand = new("DELETE FROM Players;", connection);
+            truncateCommand.ExecuteNonQuery();
+
+            connection.Close();
+        }
+
     }
 }

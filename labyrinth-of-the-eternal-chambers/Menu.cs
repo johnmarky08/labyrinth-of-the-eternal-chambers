@@ -187,6 +187,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         public static void GameOver()
         {
+            Database.UpdateHighScore(Game.playerName, Game.wrongDoors);
             Program.ToggleBackgroundMusic(0);
             Console.Clear();
             Thread.Sleep(50);
@@ -205,8 +206,7 @@ namespace labyrinth_of_the_eternal_chambers
                     ConsoleColor.DarkGray, Token.endMessage1);
                 Thread.Sleep(4_000);
                 Program.ChangeBackgroundMusic("bg1");
-                Database.UpdateHighScore(Game.playerName, Game.wrongDoors);
-                Thread.Sleep(10_000); // Wait for 10 seconds before proceeding to next message
+                Thread.Sleep(6_000); // Wait for 10 seconds (4000ms + 6000ms) before proceeding to next message
             }
 
             // Second end message.
@@ -238,8 +238,9 @@ namespace labyrinth_of_the_eternal_chambers
 
                     endMessage += '\n' + string.Join('\n', mergedLines);
 
-                    int highScore = Database.GetPlayerHighScore(Game.playerName);
+                    int highScore = Database.GetPlayerHighScore(Game.playerName) ?? 0;
                     string[] highScoreLines = Token.highScore.Split('\n');
+
                     string highScoreNumber = highScore < 10 ? string.Join('\n', MergeTokens(Token.whitespace.Split('\n'), Token.ConvertNumber(highScore.ToString()))) : Token.ConvertNumber(highScore.ToString());
                     string mergedHighScore = string.Join('\n', MergeTokens(highScoreLines, highScoreNumber));
 
