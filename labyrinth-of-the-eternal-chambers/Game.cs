@@ -22,7 +22,7 @@ namespace labyrinth_of_the_eternal_chambers
         internal static void Execute()
         {
             // Input Player Name
-            Map.DrawToken(5, (Console.BufferWidth - 110) / 2, ConsoleColor.DarkBlue, Token.insertPlayer);
+            Map.DrawToken((Console.BufferHeight - 12) / 2, (Console.BufferWidth - 110) / 2, ConsoleColor.Blue, Token.insertPlayer);
             string inputName = "";
             string currentName = "";
 
@@ -76,7 +76,7 @@ namespace labyrinth_of_the_eternal_chambers
                     }
                 }
                 Console.Clear();
-                Map.DrawToken((Console.BufferHeight - 12) / 2, (Console.BufferWidth - 110) / 2, ConsoleColor.DarkBlue, Token.insertPlayer);
+                Map.DrawToken((Console.BufferHeight - 12) / 2, (Console.BufferWidth - 110) / 2, ConsoleColor.Blue, Token.insertPlayer);
                 Map.DrawToken((Console.BufferHeight + 5) / 2, (Console.BufferWidth - currentName.Split('\n')[0].Length) / 2, ConsoleColor.White, currentName);
             }
             playerName = inputName.PadLeft((7 + inputName.Length) / 2).PadRight(7);

@@ -23,6 +23,7 @@
                 Console.WriteLine($"An error occured: {error.Message}");
 
                 Console.WriteLine("\n\nDeveloper Message: If you have tried to zoom in/out or resize the console, the game will not work properly. Please restart the program and try again. Thank you.\n\nExiting Program...");
+                Environment.Exit(0);
             }
 
         }
