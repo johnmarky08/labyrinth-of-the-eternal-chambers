@@ -2,12 +2,21 @@
 {
     internal class Error
     {
+        public static int toggleFont = 0;
+
         /// <summary>
         /// To handle unexpected errors while playing.
         /// </summary>
         /// <param name="action">The method that you want to try.</param>
-        public static void Handler(Action action)
+        /// <param name="isToggleFont">If you wish to change the font size.</param>
+        public static void Handler(Action action, bool isToggleFont = false)
         {
+            if (isToggleFont)
+            {
+                if (toggleFont == 3) Program.ToggleFontSize(3);
+                else if (toggleFont == 2) Program.ToggleFontSize(2);
+            }
+
             try
             {
                 action();

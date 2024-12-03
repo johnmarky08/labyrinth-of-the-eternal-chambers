@@ -101,7 +101,7 @@ namespace labyrinth_of_the_eternal_chambers
             simulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F1);
 
             // Start the game.
-            Error.Handler(StartGameLoop);
+            Error.Handler(StartGameLoop, true);
         }
 
         /// <summary>

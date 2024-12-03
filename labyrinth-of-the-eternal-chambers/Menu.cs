@@ -70,9 +70,8 @@ namespace labyrinth_of_the_eternal_chambers
                 Thread.Sleep(50);
             }
 
-            Program.ToggleFontSize(3);
-
             Console.Clear();
+            Error.toggleFont = 3;
             Error.Handler(Game.Execute);
         }
 
@@ -313,8 +312,6 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         private static void Restart()
         {
-            Program.ToggleFontSize(2);
-
             // Set all variables to default
             Game.playerX = Game.defaultPlayerX;
             Game.playerY = Game.defaultPlayerY;
@@ -329,7 +326,8 @@ namespace labyrinth_of_the_eternal_chambers
             Logic.pattern = "";
 
             Console.Clear();
-            Game.Execute();
+            Error.toggleFont = 2;
+            Error.Handler(Game.Execute);
         }
 
         /// <summary>
