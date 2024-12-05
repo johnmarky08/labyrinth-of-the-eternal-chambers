@@ -7,6 +7,8 @@ namespace labyrinth_of_the_eternal_chambers
     {
         private static bool exitFlag = false;
         private static bool directExit = false;
+        public static bool isGuideOpen = false;
+        public static bool isExitMenuOpen = false;
 
         /// <summary>
         /// To read when the user presses a key to know if they want to start the game or to exit the program.
@@ -70,9 +72,8 @@ namespace labyrinth_of_the_eternal_chambers
                 Thread.Sleep(50);
             }
 
-            Console.Clear();
-            Error.toggleFont = 3;
-            Error.Handler(Game.Execute);
+            Handler.toggleFont = 3;
+            Handler.Error(Game.Execute);
         }
 
         /// <summary>
@@ -99,6 +100,7 @@ namespace labyrinth_of_the_eternal_chambers
             int startX = (Console.BufferWidth - 109) / 2;
 
             Program.ToggleBackgroundMusic(2);
+            isExitMenuOpen = true;
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Map.DrawToken(startY, startX, ConsoleColor.White, exitMenu);
 
@@ -117,6 +119,7 @@ namespace labyrinth_of_the_eternal_chambers
                         {
                             Console.BackgroundColor = ConsoleColor.Black;
                             Program.ToggleBackgroundMusic(1);
+                            isExitMenuOpen = false;
 
                             if (!isInGame)
                             {
@@ -187,7 +190,9 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         public static void GameOver()
         {
+            Logic.StopTime();
             Database.UpdateHighScore(Game.playerName, Game.wrongDoors);
+            Database.UpdateTime(Game.playerName, Logic.timeInSeconds);
             Program.ToggleBackgroundMusic(0);
             Console.Clear();
             Thread.Sleep(50);
@@ -212,9 +217,15 @@ namespace labyrinth_of_the_eternal_chambers
             // Second end message.
             if (Program.currentBackgroundMusic != "bg1")
             {
-                Thread.Sleep(2_000);
+                Thread.Sleep(1_500);
                 Program.ChangeBackgroundMusic("bg1");
             }
+            DisplayScores();
+
+            // Third end message.
+            DisplayLeaderboard();
+
+            // Fourth end message.
             directExit = true;
             Thread keyListenerThread = new(ExitMenuKey);
             keyListenerThread.Start();
@@ -228,26 +239,6 @@ namespace labyrinth_of_the_eternal_chambers
             while (!exitFlag)
             {
                 string endMessage = Game.gameOver ? Token.gameOver : Token.endMessage2;
-
-                if (!Game.gameOver && Game.won)
-                {
-                    string score = Token.wrongDoors2;
-                    string[] scoreLines = score.Split('\n');
-                    string number = Game.wrongDoors < 10 ? string.Join('\n', MergeTokens(Token.whitespace.Split('\n'), Token.ConvertNumber(Game.wrongDoors.ToString()))) : Token.ConvertNumber(Game.wrongDoors.ToString());
-                    List<string> mergedLines = MergeTokens(scoreLines, number);
-
-                    endMessage += '\n' + string.Join('\n', mergedLines);
-
-                    int highScore = Database.GetPlayerHighScore(Game.playerName) ?? 0;
-                    string[] highScoreLines = Token.highScore.Split('\n');
-
-                    string highScoreNumber = highScore < 10 ? string.Join('\n', MergeTokens(Token.whitespace.Split('\n'), Token.ConvertNumber(highScore.ToString()))) : Token.ConvertNumber(highScore.ToString());
-                    string mergedHighScore = string.Join('\n', MergeTokens(highScoreLines, highScoreNumber));
-
-                    endMessage += '\n' + Token.leastDoor;
-                    endMessage += '\n' + string.Join('\n', mergedHighScore);
-                }
-
                 string playMessage = Convert.ToDouble(Game.wrongDoors) switch
                 {
                     < ((int)Configurations.MAX_GUESS * 0.25) => Token.genius,
@@ -269,6 +260,91 @@ namespace labyrinth_of_the_eternal_chambers
 
                 Thread.Sleep(500);
             }
+        }
+
+        /// <summary>
+        /// Display your scores attained in the game.
+        /// </summary>
+        private static void DisplayScores()
+        {
+            Console.Clear();
+            int highScore = Game.wrongDoors;
+
+            Map.DrawToken((Console.BufferHeight - 37) / 2, (Console.BufferWidth - Token.yourScore.Split('\n')[0].Length) / 2, ConsoleColor.Yellow, Token.yourScore);
+
+            string[] highScoreLines = Token.highScore.Split('\n');
+
+            string highScoreNumber = highScore < 10 ? string.Join('\n', MergeTokens(Token.whitespace.Split('\n'), Token.ConvertText(highScore.ToString()))) : Token.ConvertText(highScore.ToString());
+
+            string scores = "\n\n" + Token.leastDoor;
+            scores += '\n' + string.Join('\n', MergeTokens([.. MergeTokens(highScoreLines, highScoreNumber)], Token.doors));
+
+            string timeScore = Token.time1;
+            string mergedTime = "";
+
+            foreach (char character in Logic.GetTime(Logic.timeInSeconds))
+            {
+                if (string.IsNullOrEmpty(mergedTime))
+                {
+                    mergedTime = Token.ConvertText(character.ToString());
+                }
+                else
+                {
+                    mergedTime = string.Join('\n',
+                                                   MergeTokens(mergedTime.Split('\n'),
+                                                                    Token.ConvertText(character.ToString())));
+                }
+            }
+
+            timeScore += '\n' + string.Join('\n', MergeTokens(Token.time2.Split('\n'), mergedTime));
+            scores += "\n\n" + timeScore;
+
+            Map.DrawToken(Console.CursorTop + 3, (Console.BufferWidth - 112) / 2, ConsoleColor.White, scores);
+            Thread.Sleep(10_000);
+        }
+
+        /// <summary>
+        /// Displays the local leaderboard of the game.
+        /// </summary>
+        private static void DisplayLeaderboard()
+        {
+            Program.ToggleFontSize(-2);
+            Console.Clear();
+            Map.DrawToken((Console.BufferHeight - 59) / 2,
+                    (Console.BufferWidth - Token.leaderboards.Split('\n')[0].Length) / 2,
+                    ConsoleColor.Blue, Token.leaderboards);
+            Map.DrawToken(Console.CursorTop + 5,
+                    (Console.BufferWidth - Token.tableHeader.Split('\n')[0].Length) / 2,
+                    ConsoleColor.White, Token.tableHeader + '\n');
+
+            Dictionary<string, (int? HighScore, int? Time)> players = Database.GetAllPlayers();
+            int rank = 1;
+            foreach (KeyValuePair<string, (int? HighScore, int? Time)> player in players)
+            {
+                string playerLeaderboard = $"| {rank} | {player.Key} | {player.Value.HighScore} Doors | {Logic.GetTime(player.Value.Time ?? 0)} |";
+                string leaderboardToken = "";
+                foreach (char character in playerLeaderboard)
+                {
+                    if (string.IsNullOrEmpty(leaderboardToken))
+                    {
+                        leaderboardToken = Token.ConvertText(character.ToString());
+                    }
+                    else
+                    {
+                        leaderboardToken = string.Join('\n',
+                                                       MergeTokens(leaderboardToken.Split('\n'),
+                                                                        Token.ConvertText(character.ToString())));
+                    }
+                }
+
+                Map.DrawToken(Console.CursorTop + 1,
+                    (Console.BufferWidth - leaderboardToken.Split('\n')[0].Length) / 2,
+                    ConsoleColor.White, leaderboardToken + '\n');
+                if (++rank > 5) break;
+            }
+
+            Thread.Sleep(10_000);
+            Program.ToggleFontSize(2);
         }
 
         /// <summary>
@@ -322,13 +398,15 @@ namespace labyrinth_of_the_eternal_chambers
             Game.roomNumber = 1;
             Game.won = false;
             Game.gameOver = false;
+            Game.playerName = "";
+            Token.player = Token.originalPlayer;
             Map.maps.Clear();
             Logic.currentPattern = "";
             Logic.pattern = "";
+            Logic.timeInSeconds = 0;
 
-            Console.Clear();
-            Error.toggleFont = 2;
-            Error.Handler(Game.Execute);
+            Handler.toggleFont = 2;
+            Handler.Error(Game.Execute);
         }
 
         /// <summary>
@@ -342,14 +420,14 @@ namespace labyrinth_of_the_eternal_chambers
             guideMenu += string.Join('\n', MergeTokens(Token.guideMessage2.Split('\n'),
                                                              (patternLength < 10)
                                                              ? string.Join('\n', MergeTokens(
-                                                                 Token.ConvertNumber(
+                                                                 Token.ConvertText(
                                                                     patternToken).Split('\n'),
-                                                                    Token.ConvertNumber("%"),
+                                                                    Token.ConvertText("%"),
                                                                     true))
                                                              : string.Join('\n', MergeTokens(
-                                                                 Token.ConvertNumber(
+                                                                 Token.ConvertText(
                                                                     patternToken[0].ToString()).Split('\n'),
-                                                                    Token.ConvertNumber(
+                                                                    Token.ConvertText(
                                                                     patternToken[1].ToString()),
                                                                     true))));
             guideMenu += Token.guideMessage3;
@@ -360,7 +438,7 @@ namespace labyrinth_of_the_eternal_chambers
             int startY = (Console.BufferHeight - menuHeight) / 2;
             int startX = (Console.BufferWidth - menuWidth) / 2;
 
-            bool isGuideOpen = true;
+            isGuideOpen = true;
 
             Console.BackgroundColor = ConsoleColor.Gray;
             Map.DrawToken(startY, startX, ConsoleColor.Black, guideMenu);

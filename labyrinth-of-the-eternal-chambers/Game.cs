@@ -22,6 +22,7 @@ namespace labyrinth_of_the_eternal_chambers
         internal static void Execute()
         {
             // Input Player Name
+            Console.Clear();
             Map.DrawToken((Console.BufferHeight - 12) / 2, (Console.BufferWidth - 110) / 2, ConsoleColor.Blue, Token.insertPlayer);
             string inputName = "";
             string currentName = "";
@@ -32,7 +33,7 @@ namespace labyrinth_of_the_eternal_chambers
                 if (key.Key == ConsoleKey.Enter)
                 {
                     if (string.IsNullOrEmpty(inputName)) continue;
-                    break;
+                    else break;
                 }
                 else if (key.Key == ConsoleKey.Backspace)
                 {
@@ -67,7 +68,7 @@ namespace labyrinth_of_the_eternal_chambers
                     if (inputName.Length < 7)
                     {
                         char newToken = key.KeyChar;
-                        if (char.IsLetter(newToken))
+                        if (char.IsLetter(newToken) || char.IsNumber(newToken))
                         {
                             string nameToken = Token.ConvertText(newToken.ToString());
                             currentName = string.Join('\n', Menu.MergeTokens(currentName.Length > 0 ? currentName.Split('\n') : Token.emptyString.Split('\n'), nameToken));
@@ -101,7 +102,8 @@ namespace labyrinth_of_the_eternal_chambers
             simulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F1);
 
             // Start the game.
-            Error.Handler(StartGameLoop, true);
+            Logic.StartTime();
+            Handler.Error(StartGameLoop, true);
         }
 
         /// <summary>

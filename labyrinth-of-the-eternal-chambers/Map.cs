@@ -470,29 +470,45 @@
             DrawToken(height + 1, 0, wrongDoorsColor, string.Join('\n', Menu.MergeTokens(Token.wrongDoors1.Split('\n'),
                                                              (Game.wrongDoors < 10)
                                                              ? string.Join('\n', Menu.MergeTokens(
-                                                                 Token.ConvertNumber(
+                                                                 Token.ConvertText(
                                                                     wrongDoorsToken).Split('\n'),
-                                                                    Token.ConvertNumber("%"),
+                                                                    Token.ConvertText("%"),
                                                                     true))
                                                              : string.Join('\n', Menu.MergeTokens(
-                                                                 Token.ConvertNumber(
+                                                                 Token.ConvertText(
                                                                     wrongDoorsToken[0].ToString()).Split('\n'),
-                                                                    Token.ConvertNumber(
+                                                                    Token.ConvertText(
                                                                     wrongDoorsToken[1].ToString()),
                                                                     true)))));
             DrawToken(height + 1, width - 45, roomNumberColor, string.Join('\n', Menu.MergeTokens(Token.roomNumber.Split('\n'),
                                                              (Game.roomNumber < 10)
                                                              ? string.Join('\n', Menu.MergeTokens(
-                                                                 Token.ConvertNumber(
+                                                                 Token.ConvertText(
                                                                     roomNumberToken).Split('\n'),
-                                                                    Token.ConvertNumber("%"),
+                                                                    Token.ConvertText("%"),
                                                                     true))
                                                              : string.Join('\n', Menu.MergeTokens(
-                                                                 Token.ConvertNumber(
+                                                                 Token.ConvertText(
                                                                     roomNumberToken[0].ToString()).Split('\n'),
-                                                                    Token.ConvertNumber(
+                                                                    Token.ConvertText(
                                                                     roomNumberToken[1].ToString()),
                                                                     true)))));
+            string timeToken = "";
+            foreach (char character in Logic.GetTime(Logic.timeInSeconds))
+            {
+                if (string.IsNullOrEmpty(timeToken))
+                {
+                    timeToken = Token.ConvertText(character.ToString());
+                }
+                else
+                {
+                    timeToken = string.Join('\n',
+                                                   Menu.MergeTokens(timeToken.Split('\n'),
+                                                                    Token.ConvertText(character.ToString())));
+                }
+            }
+
+            DrawToken(height + 1, (width / 2) - 3, ConsoleColor.Yellow, timeToken);
 
             // Place guide token
             DrawToken(5, width + 10, ConsoleColor.DarkGreen, Token.guide);

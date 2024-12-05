@@ -16,7 +16,12 @@ namespace labyrinth_of_the_eternal_chambers
             connection.Open();
 
             SQLiteCommand createTableCommand = new(
-                "CREATE TABLE IF NOT EXISTS Players (Id INTEGER PRIMARY KEY, Name TEXT UNIQUE, HighScore INTEGER);",
+                @"CREATE TABLE IF NOT EXISTS Players (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT UNIQUE,
+                    HighScore INTEGER,
+                    Time INTEGER
+                );",
                 connection
             );
             createTableCommand.ExecuteNonQuery();
@@ -35,13 +40,39 @@ namespace labyrinth_of_the_eternal_chambers
             connection.Open();
 
             SQLiteCommand insertCommand = new(
-                "INSERT OR IGNORE INTO Players (Name, HighScore) VALUES (@name, @highScore);",
+                @"INSERT OR IGNORE INTO Players (Name, HighScore, Time)
+                  VALUES (@name, @highScore, @time);",
                 connection
             );
             insertCommand.Parameters.AddWithValue("@name", name);
             insertCommand.Parameters.AddWithValue("@highScore", null);
+            insertCommand.Parameters.AddWithValue("@time", null);
             insertCommand.ExecuteNonQuery();
-            
+
+            connection.Close();
+            SaveData();
+        }
+
+        /// <summary>
+        /// Overwrites the time of the selected player if it is faster than before.
+        /// </summary>
+        /// <param name="name">The player name.</param>
+        /// <param name="newTime">New time of the player.</param>
+        public static void UpdateTime(string name, int newTime)
+        {
+            using SQLiteConnection connection = new(connectionString);
+            connection.Open();
+
+            SQLiteCommand updateCommand = new(
+                @"UPDATE Players
+                  SET Time = @newTime
+                  WHERE Name = @name AND (Time > @newTime OR Time IS NULL);",
+                connection
+            );
+            updateCommand.Parameters.AddWithValue("@name", name);
+            updateCommand.Parameters.AddWithValue("@newTime", newTime);
+            updateCommand.ExecuteNonQuery();
+
             connection.Close();
             SaveData();
         }
@@ -57,41 +88,73 @@ namespace labyrinth_of_the_eternal_chambers
             connection.Open();
 
             SQLiteCommand updateCommand = new(
-                "UPDATE Players SET HighScore = @newHighScore WHERE Name = @name AND (HighScore > @newHighScore OR HighScore IS NULL);",
+                @"UPDATE Players
+                  SET HighScore = @newHighScore
+                  WHERE Name = @name AND (HighScore > @newHighScore OR HighScore IS NULL);",
                 connection
             );
             updateCommand.Parameters.AddWithValue("@name", name);
             updateCommand.Parameters.AddWithValue("@newHighScore", newHighScore);
-            int rowsAffected = updateCommand.ExecuteNonQuery();
+            updateCommand.ExecuteNonQuery();
 
             connection.Close();
             SaveData();
         }
 
         /// <summary>
-        /// Reads the current high score of the selected player.
+        /// Reads the current high score and time of the selected player.
         /// </summary>
         /// <param name="name">The player name.</param>
-        /// <returns>The current high score of the player.</returns>
-        public static int? GetPlayerHighScore(string name)
+        /// <returns>The current high score and time of the player.</returns>
+        public static (int? HighScore, int? Time) GetPlayerHighScore(string name)
         {
             using SQLiteConnection connection = new(connectionString);
             connection.Open();
 
-            SQLiteCommand selectCommand = new("SELECT HighScore FROM Players WHERE Name = @name;", connection);
+            SQLiteCommand selectCommand = new("SELECT HighScore, Time FROM Players WHERE Name = @name;", connection);
             selectCommand.Parameters.AddWithValue("@name", name);
 
-            object result = selectCommand.ExecuteScalar();
+            using SQLiteDataReader reader = selectCommand.ExecuteReader();
+            if (reader.Read())
+            {
+                int? highScore = reader["HighScore"] != DBNull.Value ? Convert.ToInt32(reader["HighScore"]) : null;
+                int? time = reader["Time"] != DBNull.Value ? Convert.ToInt32(reader["Time"]) : null;
+                return (highScore, time);
+            }
+
+            return (null, null);
+        }
+
+        /// <summary>
+        /// Get each player's data.
+        /// </summary>
+        /// <returns>The data in ascending order of wrong doors taken.</returns>
+        public static Dictionary<string, (int? HighScore, int? Time)> GetAllPlayers()
+        {
+            var players = new Dictionary<string, (int? HighScore, int? Time)>();
+
+            using SQLiteConnection connection = new(connectionString);
+            connection.Open();
+
+            SQLiteCommand selectCommand = new("SELECT Name, HighScore, Time FROM Players;", connection);
+            using SQLiteDataReader reader = selectCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                string name = reader["Name"].ToString() ?? "";
+                int? highScore = reader["HighScore"] != DBNull.Value ? Convert.ToInt32(reader["HighScore"]) : null;
+                int? time = reader["Time"] != DBNull.Value ? Convert.ToInt32(reader["Time"]) : null;
+
+                players[name] = (highScore, time);
+            }
 
             connection.Close();
 
-            // If player not found, return null
-            if (result == null || result == DBNull.Value)
-            {
-                return null;
-            }
+            var sortedPlayers = players.OrderBy(player => player.Value.HighScore)
+                                       .ThenBy(player => player.Value.Time)
+                                       .ToDictionary(player => player.Key, player => player.Value);
 
-            return Convert.ToInt32(result);
+            return sortedPlayers;
         }
 
         /// <summary>
@@ -112,22 +175,24 @@ namespace labyrinth_of_the_eternal_chambers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error copying database file: {ex.Message}");
-                return; 
+                return;
             }
         }
 
         /// <summary>
         /// Delete all the table data.
         /// </summary>
-        public static void TruncateTable()
+        public static void DropTable()
         {
             using SQLiteConnection connection = new(connectionString);
             connection.Open();
+             
+            SQLiteCommand dropCommand = new("DROP TABLE IF EXISTS Players;", connection);
+            dropCommand.ExecuteNonQuery();
 
-            SQLiteCommand truncateCommand = new("DELETE FROM Players;", connection);
-            truncateCommand.ExecuteNonQuery();
-
+            Console.WriteLine("Dropped Table Sucessfully. Please restart the program.");
             connection.Close();
+            SaveData();
         }
 
     }

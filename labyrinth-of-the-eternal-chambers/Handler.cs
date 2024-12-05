@@ -1,6 +1,6 @@
 ﻿namespace labyrinth_of_the_eternal_chambers
 {
-    internal class Error
+    internal class Handler
     {
         public static int toggleFont = 0;
 
@@ -9,7 +9,7 @@
         /// </summary>
         /// <param name="action">The method that you want to try.</param>
         /// <param name="isToggleFont">If you wish to change the font size.</param>
-        public static void Handler(Action action, bool isToggleFont = false)
+        public static void Error(Action action, bool isToggleFont = false)
         {
             if (isToggleFont)
             {

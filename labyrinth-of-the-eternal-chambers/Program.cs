@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using System.Data.SQLite;
 using System.Runtime.InteropServices;
 using WindowsInput;
 using WindowsInput.Native;
@@ -69,9 +70,9 @@ namespace labyrinth_of_the_eternal_chambers
             bgMusicThread.Start();
 
             // For debugging or if you want to reset all the data.
-            // Database.TruncateTable();
-            
-            Error.Handler(Menu.Start);
+            // Database.DropTable();
+
+            Handler.Error(Menu.Start);
         }
 
         /// <summary>
