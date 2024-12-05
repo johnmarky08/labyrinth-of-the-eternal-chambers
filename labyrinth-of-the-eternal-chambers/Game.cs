@@ -82,9 +82,9 @@ namespace labyrinth_of_the_eternal_chambers
             }
             playerName = inputName.PadLeft((7 + inputName.Length) / 2).PadRight(7);
 
-            Database.CreateTable();
-            Database.InsertPlayer(playerName);
-            
+            Handler.Error(Database.CreateTable);
+            Handler.Error(() => Database.InsertPlayer(playerName));
+
             Token.player = Token.player.Insert(0, playerName + "\n");
 
             // Minimize fontsize for ASCII art to fit on screen.

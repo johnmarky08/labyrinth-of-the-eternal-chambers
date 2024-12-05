@@ -191,8 +191,8 @@ namespace labyrinth_of_the_eternal_chambers
         public static void GameOver()
         {
             Logic.StopTime();
-            Database.UpdateHighScore(Game.playerName, Game.wrongDoors);
-            Database.UpdateTime(Game.playerName, Logic.timeInSeconds);
+            Handler.Error(() => Database.UpdateHighScore(Game.playerName, Game.wrongDoors));
+            Handler.Error(() => Database.UpdateTime(Game.playerName, Logic.timeInSeconds));
             Program.ToggleBackgroundMusic(0);
             Console.Clear();
             Thread.Sleep(50);

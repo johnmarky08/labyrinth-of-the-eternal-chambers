@@ -33,7 +33,6 @@ namespace labyrinth_of_the_eternal_chambers
         /// Insert the player name along with its high score into the database; it will skip if the player name already exists.
         /// </summary>
         /// <param name="name">The player name.</param>
-        /// <param name="highScore">Initialize a high score for them.</param>
         public static void InsertPlayer(string name)
         {
             using SQLiteConnection connection = new(connectionString);
@@ -99,30 +98,6 @@ namespace labyrinth_of_the_eternal_chambers
 
             connection.Close();
             SaveData();
-        }
-
-        /// <summary>
-        /// Reads the current high score and time of the selected player.
-        /// </summary>
-        /// <param name="name">The player name.</param>
-        /// <returns>The current high score and time of the player.</returns>
-        public static (int? HighScore, int? Time) GetPlayerHighScore(string name)
-        {
-            using SQLiteConnection connection = new(connectionString);
-            connection.Open();
-
-            SQLiteCommand selectCommand = new("SELECT HighScore, Time FROM Players WHERE Name = @name;", connection);
-            selectCommand.Parameters.AddWithValue("@name", name);
-
-            using SQLiteDataReader reader = selectCommand.ExecuteReader();
-            if (reader.Read())
-            {
-                int? highScore = reader["HighScore"] != DBNull.Value ? Convert.ToInt32(reader["HighScore"]) : null;
-                int? time = reader["Time"] != DBNull.Value ? Convert.ToInt32(reader["Time"]) : null;
-                return (highScore, time);
-            }
-
-            return (null, null);
         }
 
         /// <summary>
