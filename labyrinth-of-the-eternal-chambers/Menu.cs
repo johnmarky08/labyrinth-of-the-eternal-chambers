@@ -218,7 +218,7 @@ namespace labyrinth_of_the_eternal_chambers
 
                 // Third end message.
                 DisplayLeaderboard();
-            }            
+            }
 
             // Fourth end message.
             if (Program.currentBackgroundMusic != "bg1")
@@ -308,7 +308,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         private static void DisplayLeaderboard()
         {
-            Program.ToggleFontSize(-3);
+            Program.ToggleFontSize(-4);
             Console.Clear();
             Map.DrawToken((Console.BufferHeight - 59) / 2,
                     (Console.BufferWidth - Token.leaderboards.Split('\n')[0].Length) / 2,
@@ -344,7 +344,7 @@ namespace labyrinth_of_the_eternal_chambers
             }
 
             Thread.Sleep(10_000);
-            Program.ToggleFontSize(5);
+            Program.ToggleFontSize(4);
         }
 
         /// <summary>
