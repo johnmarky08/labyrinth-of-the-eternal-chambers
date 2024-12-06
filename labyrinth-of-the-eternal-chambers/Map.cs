@@ -209,7 +209,7 @@
             List<(int, int)> directionsList = new(directions);
             directionsList.Sort((a, b) => random.Next().CompareTo(random.Next()));
 
-            foreach (var (dx, dy) in directionsList)
+            foreach ((int dx, int dy) in directionsList)
             {
                 int newX = startX + dx * 2; // Step size of 2 to create pathways
                 int newY = startY + dy * 2;
@@ -328,7 +328,7 @@
                 int oldY = Game.oldPlayerY;
                 int oldX = Game.oldPlayerX;
                 List<(int, int)> shadows = [];
-                foreach (var (offsetY, offsetX) in shadowMaze)
+                foreach ((int offsetY, int offsetX) in shadowMaze)
                 {
                     // Write boundaries that are near the player.
                     int startX = currentX + offsetX;
@@ -339,7 +339,7 @@
                         DrawToken(startY, startX, ConsoleColor.White, Token.boundary);
                 }
 
-                foreach (var (offsetY, offsetX) in shadowMaze)
+                foreach ((int offsetY, int offsetX) in shadowMaze)
                 {
                     // Remove boundaries that are far away from the player.
                     int oldStartX = oldX + offsetX;

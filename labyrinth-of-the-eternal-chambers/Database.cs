@@ -106,7 +106,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// <returns>The data in ascending order of wrong doors taken.</returns>
         public static Dictionary<string, (int? HighScore, int? Time)> GetAllPlayers()
         {
-            var players = new Dictionary<string, (int? HighScore, int? Time)>();
+            Dictionary<string, (int? HighScore, int? Time)> players = [];
 
             using SQLiteConnection connection = new(connectionString);
             connection.Open();
@@ -125,7 +125,7 @@ namespace labyrinth_of_the_eternal_chambers
 
             connection.Close();
 
-            var sortedPlayers = players.OrderBy(player => player.Value.HighScore)
+            Dictionary<string, (int? HighScore, int? Time)> sortedPlayers = players.OrderBy(player => player.Value.HighScore)
                                        .ThenBy(player => player.Value.Time)
                                        .ToDictionary(player => player.Key, player => player.Value);
 
