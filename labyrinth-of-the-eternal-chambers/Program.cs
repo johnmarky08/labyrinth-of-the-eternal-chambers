@@ -223,7 +223,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// <summary>
         /// Toggles font size depending on the strokes given.
         /// </summary>
-        /// <param name="strokes">The number of clicks for scrolling, possitive means forward, negative means backwards.</param>
+        /// <param name="strokes">The number of clicks for scrolling, positive means forward, negative means backwards.</param>
         public static void ToggleFontSize(int strokes)
         {
             InputSimulator simulator = new();

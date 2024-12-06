@@ -169,6 +169,5 @@ namespace labyrinth_of_the_eternal_chambers
             connection.Close();
             SaveData();
         }
-
     }
 }
