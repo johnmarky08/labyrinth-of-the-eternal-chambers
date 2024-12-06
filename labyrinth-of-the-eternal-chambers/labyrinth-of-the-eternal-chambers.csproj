@@ -24,12 +24,8 @@
 	</PackageReference>
     <PackageReference Include="NAudio" Version="2.2.1" />
 	<PackageReference Include="System.Data.SQLite" Version="1.0.119" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.1">
-        <NoWarn>NU1902;NU1903</NoWarn>
-    </PackageReference>
-	<PackageReference Include="System.Drawing.Common" Version="4.7.0">
-		<NoWarn>NU1904</NoWarn>
-	</PackageReference>
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+	<PackageReference Include="System.Drawing.Common" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
