@@ -191,8 +191,6 @@ namespace labyrinth_of_the_eternal_chambers
         public static void GameOver()
         {
             Logic.StopTime();
-            Handler.Error(() => Database.UpdateHighScore(Game.playerName, Game.wrongDoors));
-            Handler.Error(() => Database.UpdateTime(Game.playerName, Logic.timeInSeconds));
             Program.ToggleBackgroundMusic(0);
             Console.Clear();
             Thread.Sleep(50);
@@ -206,6 +204,8 @@ namespace labyrinth_of_the_eternal_chambers
             // First end message.
             if (!Game.gameOver && Game.won)
             {
+                Handler.Error(() => Database.UpdateHighScore(Game.playerName, Game.wrongDoors));
+                Handler.Error(() => Database.UpdateTime(Game.playerName, Logic.timeInSeconds));
                 Map.DrawToken((Console.BufferHeight - Token.endMessage1.Split('\n').Length) / 2,
                     (Console.BufferWidth - Token.endMessage1.Split('\n')[0].Length) / 2,
                     ConsoleColor.DarkGray, Token.endMessage1);
