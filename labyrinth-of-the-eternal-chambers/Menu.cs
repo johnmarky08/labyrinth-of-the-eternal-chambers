@@ -308,7 +308,8 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         private static void DisplayLeaderboard()
         {
-            Program.ToggleFontSize(-4);
+            Program.ToggleFontSize(-2);
+            Thread.Sleep(100);
             Console.Clear();
             Map.DrawToken((Console.BufferHeight - 59) / 2,
                     (Console.BufferWidth - Token.leaderboards.Split('\n')[0].Length) / 2,
@@ -344,7 +345,8 @@ namespace labyrinth_of_the_eternal_chambers
             }
 
             Thread.Sleep(10_000);
-            Program.ToggleFontSize(4);
+            Program.ToggleFontSize(2);
+            Thread.Sleep(100);
         }
 
         /// <summary>
