@@ -64,8 +64,8 @@ namespace labyrinth_of_the_eternal_chambers
             Thread.Sleep(50);
             ToggleFontSize(-3);
 
-            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
-            Console.SetWindowSize(Console.WindowWidth, Console.WindowHeight);
+            Console.SetBufferSize(Console.WindowWidth, Console.LargestWindowHeight);
+            Console.SetWindowSize(Console.WindowWidth, Console.LargestWindowHeight);
 
             bgMusicThread.Start();
 
