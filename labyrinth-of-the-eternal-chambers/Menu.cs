@@ -212,20 +212,20 @@ namespace labyrinth_of_the_eternal_chambers
                 Thread.Sleep(4_000);
                 Program.ChangeBackgroundMusic("bg1");
                 Thread.Sleep(6_000); // Wait for 10 seconds (4000ms + 6000ms) before proceeding to next message
-            }
 
-            // Second end message.
+                // Second end message.
+                DisplayScores();
+
+                // Third end message.
+                DisplayLeaderboard();
+            }            
+
+            // Fourth end message.
             if (Program.currentBackgroundMusic != "bg1")
             {
                 Thread.Sleep(1_500);
                 Program.ChangeBackgroundMusic("bg1");
             }
-            DisplayScores();
-
-            // Third end message.
-            DisplayLeaderboard();
-
-            // Fourth end message.
             directExit = true;
             Thread keyListenerThread = new(ExitMenuKey);
             keyListenerThread.Start();
@@ -308,7 +308,7 @@ namespace labyrinth_of_the_eternal_chambers
         /// </summary>
         private static void DisplayLeaderboard()
         {
-            Program.ToggleFontSize(-2);
+            Program.ToggleFontSize(-3);
             Console.Clear();
             Map.DrawToken((Console.BufferHeight - 59) / 2,
                     (Console.BufferWidth - Token.leaderboards.Split('\n')[0].Length) / 2,
@@ -344,7 +344,7 @@ namespace labyrinth_of_the_eternal_chambers
             }
 
             Thread.Sleep(10_000);
-            Program.ToggleFontSize(2);
+            Program.ToggleFontSize(5);
         }
 
         /// <summary>
