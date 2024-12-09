@@ -2,8 +2,6 @@
 {
     internal class Handler
     {
-        public static int toggleFont = 0;
-
         /// <summary>
         /// To handle unexpected errors while playing.
         /// </summary>
@@ -13,8 +11,7 @@
         {
             if (isToggleFont)
             {
-                if (toggleFont == 3) Program.ToggleFontSize(3);
-                else if (toggleFont == 2) Program.ToggleFontSize(2);
+                Program.ToggleFontSize(3);
             }
 
             try

@@ -72,7 +72,6 @@ namespace labyrinth_of_the_eternal_chambers
                 Thread.Sleep(50);
             }
 
-            Handler.toggleFont = 3;
             Handler.Error(Game.Execute);
         }
 
@@ -232,7 +231,7 @@ namespace labyrinth_of_the_eternal_chambers
             bool nextText = true;
             exitFlag = false;
 
-            Program.ToggleFontSize(-1);
+            Program.ToggleFontSize(-2);
             Thread.Sleep(100);
             Console.Clear();
 
@@ -407,7 +406,6 @@ namespace labyrinth_of_the_eternal_chambers
             Logic.pattern = "";
             Logic.timeInSeconds = 0;
 
-            Handler.toggleFont = 2;
             Handler.Error(Game.Execute);
         }
 
